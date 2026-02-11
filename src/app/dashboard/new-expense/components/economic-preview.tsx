@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Sparkles, Terminal } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { addMonths, addWeeks } from 'date-fns';
 
 export function EconomicPreview() {
   const form = useFormContext<ExpenseFormValues>();
@@ -37,7 +38,38 @@ export function EconomicPreview() {
   const getInstallmentSummary = () => {
     if (watchedValues.paymentMethod === 'single') return 'Pagamento único';
     if (!watchedValues.installments) return 'Não definido';
-    return `${watchedValues.installments} parcelas`;
+    
+    const installments = watchedValues.installments || 0;
+    let firstDueDate = '-';
+    let lastDueDate = '-';
+
+    if (watchedValues.installmentType === 'equal' && watchedValues.firstInstallmentDueDate && installments > 0) {
+      const firstDate = watchedValues.firstInstallmentDueDate;
+      firstDueDate = firstDate.toLocaleDateString('pt-BR');
+      let lastDate = firstDate;
+      if (watchedValues.installmentPeriodicity === 'monthly') {
+        lastDate = addMonths(firstDate, installments - 1);
+      } else if (watchedValues.installmentPeriodicity === 'weekly') {
+        lastDate = addWeeks(firstDate, installments - 1);
+      } else if (watchedValues.installmentPeriodicity === 'biweekly') {
+        lastDate = addWeeks(firstDate, (installments - 1) * 2);
+      }
+      lastDueDate = lastDate.toLocaleDateString('pt-BR');
+    } else if (watchedValues.installmentType === 'varied' && watchedValues.variedInstallments && watchedValues.variedInstallments.length > 0) {
+        const dates = watchedValues.variedInstallments.map(v => v.dueDate).filter(Boolean);
+        if (dates.length > 0) {
+          firstDueDate = dates[0].toLocaleDateString('pt-BR');
+          lastDueDate = dates[dates.length - 1].toLocaleDateString('pt-BR');
+        }
+    }
+    
+    return (
+      <div className="space-y-1 text-right">
+        <p className="font-medium">{installments} parcelas - Total R$ {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(watchedValues.totalValue || 0)}</p>
+        <p className="text-xs text-muted-foreground">1ª em: {firstDueDate}</p>
+        <p className="text-xs text-muted-foreground">Última em: {lastDueDate}</p>
+      </div>
+    );
   }
 
   return (
@@ -65,11 +97,9 @@ export function EconomicPreview() {
             {watchedValues.dueDate ? watchedValues.dueDate.toLocaleDateString('pt-BR') : '-'}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Parcelamento:</span>
-          <span className="font-medium">
-            {getInstallmentSummary()}
-          </span>
+        <div className="flex justify-between items-start">
+          <span className="text-muted-foreground pt-1">Parcelamento:</span>
+          {getInstallmentSummary()}
         </div>
         <Separator />
         <p className="font-medium text-muted-foreground">Centro de Custo:</p>

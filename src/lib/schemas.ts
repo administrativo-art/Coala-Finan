@@ -22,15 +22,14 @@ export const expenseFormSchema = z
       )
       .optional(),
     paymentMethod: z.enum(['single', 'installments']).default('single'),
-    installments: z.coerce.number().int().positive('Número de parcelas inválido.').optional(),
-    installmentDetails: z
-      .array(
-        z.object({
-          value: z.coerce.number().positive('Valor da parcela deve ser positivo.'),
-          dueDate: z.date({ required_error: 'Data de vencimento da parcela é obrigatória.' }),
-        })
-      )
-      .optional(),
+    installments: z.coerce.number().int().min(2, 'O número mínimo de parcelas é 2.').optional(),
+    installmentType: z.enum(['equal', 'varied']).optional(),
+    firstInstallmentDueDate: z.date().optional(),
+    installmentPeriodicity: z.enum(['monthly', 'weekly', 'biweekly']).default('monthly').optional(),
+    variedInstallments: z.array(z.object({
+      dueDate: z.date({ required_error: 'Data de vencimento é obrigatória.' }),
+      value: z.coerce.number().positive('O valor deve ser positivo.'),
+    })).optional(),
     supplier: z.string().optional(),
     notes: z.string().optional(),
   })
@@ -62,14 +61,46 @@ export const expenseFormSchema = z
   .refine(
     (data) => {
       if (data.paymentMethod === 'installments') {
-        return data.installments && data.installments > 1;
+        return data.installments && data.installments >= 2;
       }
       return true;
     },
     {
-      message: 'O número de parcelas deve ser maior que 1.',
+      message: 'O número de parcelas deve ser no mínimo 2.',
       path: ['installments'],
     }
+  )
+  .refine(
+    (data) => {
+      if (data.paymentMethod === 'installments' && data.installmentType === 'equal') {
+        return !!data.firstInstallmentDueDate;
+      }
+      return true;
+    },
+    {
+      message: 'A data do primeiro vencimento é obrigatória.',
+      path: ['firstInstallmentDueDate'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        data.paymentMethod === 'installments' &&
+        data.installmentType === 'varied' &&
+        data.variedInstallments &&
+        data.installments
+      ) {
+        if (data.variedInstallments.length !== data.installments) return false;
+        const total = data.variedInstallments.reduce((acc, curr) => acc + (curr.value || 0), 0);
+        return Math.abs(total - data.totalValue) < 0.01;
+      }
+      return true;
+    },
+    {
+      message: 'A quantidade de linhas de parcela deve ser igual à quantidade de parcelas e a soma dos valores deve ser igual ao valor total.',
+      path: ['variedInstallments'],
+    }
   );
+
 
 export type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
