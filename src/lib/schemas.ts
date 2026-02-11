@@ -22,7 +22,7 @@ export const expenseFormSchema = z
       )
       .optional(),
     paymentMethod: z.enum(['single', 'installments']).default('single'),
-    installments: z.coerce.number().optional(),
+    installments: z.coerce.number().int().positive('Número de parcelas inválido.').optional(),
     installmentDetails: z
       .array(
         z.object({
@@ -33,6 +33,7 @@ export const expenseFormSchema = z
       .optional(),
     supplier: z.string().optional(),
     notes: z.string().optional(),
+    status: z.enum(['open', 'cancelled']).default('open'),
   })
   .refine(
     (data) => {
@@ -57,6 +58,18 @@ export const expenseFormSchema = z
     {
       message: 'A soma dos percentuais do rateio deve ser 100%.',
       path: ['apportionments'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.paymentMethod === 'installments') {
+        return data.installments && data.installments > 1;
+      }
+      return true;
+    },
+    {
+      message: 'O número de parcelas deve ser maior que 1.',
+      path: ['installments'],
     }
   );
 

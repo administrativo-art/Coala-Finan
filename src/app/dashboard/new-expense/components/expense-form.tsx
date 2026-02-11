@@ -55,6 +55,7 @@ export default function ExpenseForm() {
     defaultValues: {
       isApportioned: false,
       paymentMethod: 'single',
+      status: 'open',
       apportionments: [{ resultCenter: '', percentage: 100 }],
     },
     mode: 'onChange',
@@ -75,6 +76,7 @@ export default function ExpenseForm() {
   }
 
   const isApportioned = form.watch('isApportioned');
+  const paymentMethod = form.watch('paymentMethod');
 
   return (
     <Form {...form}>
@@ -186,6 +188,56 @@ export default function ExpenseForm() {
               />
             </CardContent>
           </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Pagamento</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Forma de Pagamento</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4 pt-2"
+                      >
+                        <FormItem className="flex items-center space-x-2">
+                          <FormControl><RadioGroupItem value="single" id="single" /></FormControl>
+                          <FormLabel htmlFor="single" className="font-normal cursor-pointer">À Vista</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2">
+                          <FormControl><RadioGroupItem value="installments" id="installments-radio" /></FormControl>
+                          <FormLabel htmlFor="installments-radio" className="font-normal cursor-pointer">Parcelado</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {paymentMethod === 'installments' && (
+                <FormField
+                  control={form.control}
+                  name="installments"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantidade de Parcelas</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Ex: 12" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </CardContent>
+          </Card>
+
 
           <Card>
             <CardHeader>
@@ -269,9 +321,22 @@ export default function ExpenseForm() {
           
            <Card>
             <CardHeader>
-              <CardTitle>Informações Adicionais</CardTitle>
+              <CardTitle>Fornecedor, Controle e Observações</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="supplier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fornecedor</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ex: Nome do Fornecedor LTDA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="notes"
@@ -280,6 +345,32 @@ export default function ExpenseForm() {
                     <FormLabel>Observações</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Detalhes adicionais sobre a despesa..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4 pt-2"
+                      >
+                        <FormItem className="flex items-center space-x-2">
+                          <FormControl><RadioGroupItem value="open" id="open" /></FormControl>
+                          <FormLabel htmlFor="open" className="font-normal cursor-pointer">Em Aberto</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-2">
+                          <FormControl><RadioGroupItem value="cancelled" id="cancelled" /></FormControl>
+                          <FormLabel htmlFor="cancelled" className="font-normal cursor-pointer">Cancelada</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
