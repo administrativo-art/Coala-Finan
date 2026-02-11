@@ -55,7 +55,6 @@ export default function ExpenseForm() {
     defaultValues: {
       isApportioned: false,
       paymentMethod: 'single',
-      status: 'open',
       apportionments: [{ resultCenter: '', percentage: 100 }],
     },
     mode: 'onChange',
@@ -360,41 +359,6 @@ export default function ExpenseForm() {
               />
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Controle</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status da Despesa</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex space-x-4 pt-2"
-                      >
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl><RadioGroupItem value="open" id="open" /></FormControl>
-                          <FormLabel htmlFor="open" className="font-normal cursor-pointer">Em Aberto</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl><RadioGroupItem value="cancelled" id="cancelled" /></FormControl>
-                          <FormLabel htmlFor="cancelled" className="font-normal cursor-pointer">Cancelada</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => form.reset()}>Cancelar</Button>

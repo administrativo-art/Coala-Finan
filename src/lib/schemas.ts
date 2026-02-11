@@ -33,7 +33,6 @@ export const expenseFormSchema = z
       .optional(),
     supplier: z.string().optional(),
     notes: z.string().optional(),
-    status: z.enum(['open', 'cancelled']).default('open'),
   })
   .refine(
     (data) => {

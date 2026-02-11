@@ -13,13 +13,41 @@
           "type": "string",
           "format": "email",
           "description": "The user's email address."
+        },
+        "profile": {
+          "type": "string",
+          "description": "The user's access profile name."
         }
       },
-      "required": ["name", "email"]
+      "required": [
+        "name",
+        "email",
+        "profile"
+      ]
+    },
+    "accessProfile": {
+      "title": "Access Profile",
+      "description": "Defines a user's access profile and permissions.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the access profile."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the profile's permissions."
+        }
+      },
+      "required": [
+        "name"
+      ]
     }
   },
   "auth": {
-    "providers": ["google.com"]
+    "providers": [
+      "google.com"
+    ]
   },
   "firestore": {
     "/users/{userId}": {
@@ -27,6 +55,12 @@
         "$ref": "#/entities/user"
       },
       "description": "User profile information."
+    },
+    "/accessProfiles/{profileId}": {
+      "schema": {
+        "$ref": "#/entities/accessProfile"
+      },
+      "description": "Access profile definitions."
     }
   }
 }
