@@ -24,7 +24,7 @@ export function initializeFirebase(): FirebaseInstances {
 
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const firestore = getFirestore(app);
+  const firestore = getFirestore(app, 'coalafinan');
 
   firebaseInstances = { app, auth, firestore };
   return firebaseInstances;
