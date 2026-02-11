@@ -190,10 +190,14 @@ export default function CostCentersManagement() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleDialogOpen(cc)}>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          onClick={() => handleDialogOpen(cc)}
+                        >
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
                           onClick={() => {
                             setDeletingId(cc.id);
                             setIsAlertOpen(true);

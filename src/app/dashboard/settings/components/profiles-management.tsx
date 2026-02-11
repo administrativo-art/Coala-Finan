@@ -180,10 +180,14 @@ export default function ProfilesManagement() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleDialogOpen(profile)}>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          onClick={() => handleDialogOpen(profile)}
+                        >
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
                           onClick={() => {
                             setDeletingId(profile.id);
                             setIsAlertOpen(true);

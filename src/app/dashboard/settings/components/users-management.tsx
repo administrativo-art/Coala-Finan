@@ -206,10 +206,14 @@ export default function UsersManagement() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleDialogOpen(user)}>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          onClick={() => handleDialogOpen(user)}
+                        >
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
                           onClick={() => {
                             setDeletingId(user.id);
                             setIsAlertOpen(true);
