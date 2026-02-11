@@ -318,18 +318,18 @@ export default function ExpenseForm() {
                 )}
             </CardContent>
           </Card>
-          
-           <Card>
+
+          <Card>
             <CardHeader>
-              <CardTitle>Fornecedor, Controle e Observações</CardTitle>
+              <CardTitle>Fornecedor</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <FormField
                 control={form.control}
                 name="supplier"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Fornecedor</FormLabel>
+                    <FormLabel>Nome do Fornecedor</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: Nome do Fornecedor LTDA" {...field} />
                     </FormControl>
@@ -337,12 +337,20 @@ export default function ExpenseForm() {
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Observações</CardTitle>
+            </CardHeader>
+            <CardContent>
               <FormField
                 control={form.control}
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Observações</FormLabel>
+                    <FormLabel>Notas Adicionais</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Detalhes adicionais sobre a despesa..." {...field} />
                     </FormControl>
@@ -350,12 +358,20 @@ export default function ExpenseForm() {
                   </FormItem>
                 )}
               />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Controle</CardTitle>
+            </CardHeader>
+            <CardContent>
               <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Status</FormLabel>
+                  <FormItem>
+                    <FormLabel>Status da Despesa</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
