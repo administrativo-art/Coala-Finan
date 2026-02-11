@@ -207,7 +207,7 @@ export default function ExpenseForm() {
                   <FormItem>
                     <FormLabel>Descrição da Despesa</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Compra de material de escritório" {...field} />
+                      <Input placeholder="Ex: Compra de material de escritório" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -228,7 +228,7 @@ export default function ExpenseForm() {
                   <FormItem>
                     <FormLabel>Valor Total (R$)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="150,00" {...field} />
+                      <Input type="number" placeholder="150,00" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -346,7 +346,7 @@ export default function ExpenseForm() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Qtde. Parcelas</FormLabel>
-                              <FormControl><Input type="number" min={2} placeholder="Ex: 12" {...field} /></FormControl>
+                              <FormControl><Input type="number" min={2} placeholder="Ex: 12" {...field} value={field.value ?? ''} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -429,7 +429,7 @@ export default function ExpenseForm() {
                           render={({ field }) => (
                             <FormItem className="max-w-xs">
                               <FormLabel>Quantidade de Parcelas</FormLabel>
-                              <FormControl><Input type="number" min={2} placeholder="Ex: 3" {...field} /></FormControl>
+                              <FormControl><Input type="number" min={2} placeholder="Ex: 3" {...field} value={field.value ?? ''} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -469,7 +469,7 @@ export default function ExpenseForm() {
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormLabel>Valor (R$)</FormLabel>
-                                        <FormControl><Input type="number" placeholder="R$" {...field} /></FormControl>
+                                        <FormControl><Input type="number" placeholder="R$" {...field} value={field.value ?? ''} /></FormControl>
                                         <FormMessage />
                                       </FormItem>
                                     )}
@@ -563,7 +563,7 @@ export default function ExpenseForm() {
                             render={({ field }) => (
                               <FormItem className="w-28">
                                 <FormLabel>Perc. (%)</FormLabel>
-                                <FormControl><Input type="number" placeholder="%" {...field} /></FormControl>
+                                <FormControl><Input type="number" placeholder="%" {...field} value={field.value ?? ''} /></FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -594,7 +594,7 @@ export default function ExpenseForm() {
                   <FormItem>
                     <FormLabel>Nome do Fornecedor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Nome do Fornecedor LTDA" {...field} />
+                      <Input placeholder="Ex: Nome do Fornecedor LTDA" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -615,7 +615,7 @@ export default function ExpenseForm() {
                   <FormItem>
                     <FormLabel>Notas Adicionais</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Detalhes adicionais sobre a despesa..." {...field} />
+                      <Textarea placeholder="Detalhes adicionais sobre a despesa..." {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
