@@ -56,7 +56,7 @@ export default function AppSidebar() {
         >
           <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
           <span className="font-headline text-lg font-semibold text-sidebar-foreground">
-            Architect
+            Coala
           </span>
         </div>
       </SidebarHeader>

@@ -1,3 +1,7 @@
+'use client';
+
+import { useFirestore, useCollection } from '@/firebase';
+import { collection } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,25 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MoreHorizontal, PlusCircle, UserPlus } from 'lucide-react';
-
-const users = [
-  {
-    name: 'Ana Silva',
-    email: 'ana.silva@example.com',
-    profile: 'Administrador',
-  },
-  {
-    name: 'Carlos Oliveira',
-    email: 'carlos.o@example.com',
-    profile: 'Gerente',
-  },
-  {
-    name: 'Mariana Costa',
-    email: 'mariana.costa@example.com',
-    profile: 'Operacional',
-  },
-];
+import { MoreHorizontal, PlusCircle, UserPlus, Loader2 } from 'lucide-react';
 
 const profiles = [
   {
@@ -58,6 +44,10 @@ const profiles = [
 ];
 
 export default function SettingsPage() {
+  const firestore = useFirestore();
+  const usersCollection = firestore ? collection(firestore, 'users') : null;
+  const { data: users, loading: usersLoading } = useCollection(usersCollection);
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="font-headline text-3xl font-bold tracking-tight">
@@ -95,32 +85,40 @@ export default function SettingsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.email}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.profile}</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              aria-haspopup="true"
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Toggle menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuItem>Editar</DropdownMenuItem>
-                            <DropdownMenuItem>Excluir</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {usersLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-24 text-center">
+                        <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    users && users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.profile}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                              <DropdownMenuItem>Editar</DropdownMenuItem>
+                              <DropdownMenuItem>Excluir</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>

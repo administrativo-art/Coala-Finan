@@ -1,11 +1,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
-import { FirebaseClientProvider } from '@/firebase';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'Financial Flow Architect',
-  description: 'A financial architecture system by Firebase Studio',
+  title: 'Coala Financeiro',
+  description: 'Um sistema de arquitetura financeira by Coala',
 };
 
 export default function RootLayout({
