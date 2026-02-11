@@ -41,7 +41,7 @@ export function EconomicPreview() {
   }
 
   return (
-    <Card className="sticky top-20 shadow-lg">
+    <Card className="sticky top-20">
       <CardHeader>
         <CardTitle className="font-headline">Preview Econômico</CardTitle>
         <CardDescription>Resumo da despesa em tempo real.</CardDescription>
@@ -86,7 +86,7 @@ export function EconomicPreview() {
         )}
       </CardContent>
       <CardFooter className="flex-col items-stretch gap-4">
-        <Button onClick={handleGenerateInsights} disabled={isLoading || !form.formState.isValid}>
+        <Button onClick={handleGenerateInsights} disabled={isLoading || !form.formState.isValid} className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/50 hover:opacity-90 transition-all hover:shadow-xl hover:shadow-purple-500/50">
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (

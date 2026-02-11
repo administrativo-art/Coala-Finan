@@ -7,12 +7,12 @@ import { PiggyBank } from 'lucide-react';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="mb-8 flex items-center gap-3 text-primary">
         <PiggyBank className="h-10 w-10" />
         <h1 className="font-headline text-4xl font-bold">Financial Flow Architect</h1>
       </div>
-      <Card className="w-full max-w-sm shadow-2xl">
+      <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Acesso ao Sistema</CardTitle>
           <CardDescription>Insira suas credenciais para continuar.</CardDescription>
