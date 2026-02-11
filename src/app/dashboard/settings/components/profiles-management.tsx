@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
@@ -65,9 +65,7 @@ type Profile = ProfileFormValues & { id: string };
 export default function ProfilesManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const profilesCollection = firestore
-    ? collection(firestore, 'accessProfiles')
-    : null;
+  const profilesCollection = useMemo(() => (firestore ? collection(firestore, 'accessProfiles') : null), [firestore]);
   const { data: profiles, loading } = useCollection(profilesCollection);
 
   const [isFormOpen, setIsFormOpen] = useState(false);

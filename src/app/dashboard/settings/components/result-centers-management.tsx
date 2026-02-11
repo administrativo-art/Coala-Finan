@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
@@ -68,9 +68,7 @@ type ResultCenter = ResultCenterFormValues & { id: string };
 export default function ResultCentersManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const resultCentersCollection = firestore
-    ? collection(firestore, 'resultCenters')
-    : null;
+  const resultCentersCollection = useMemo(() => (firestore ? collection(firestore, 'resultCenters') : null), [firestore]);
   const { data: resultCenters, loading } = useCollection(
     resultCentersCollection
   );

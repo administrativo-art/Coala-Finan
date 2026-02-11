@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -78,10 +78,10 @@ export default function UsersManagement() {
   const firestore = useFirestore();
   const { user: authUser } = useUser();
 
-  const usersCollection = firestore ? collection(firestore, 'users') : null;
+  const usersCollection = useMemo(() => (firestore ? collection(firestore, 'users') : null), [firestore]);
   const { data: users, loading: usersLoading } = useCollection(usersCollection);
 
-  const profilesCollection = firestore ? collection(firestore, 'accessProfiles') : null;
+  const profilesCollection = useMemo(() => (firestore ? collection(firestore, 'accessProfiles') : null), [firestore]);
   const { data: profiles, loading: profilesLoading } = useCollection(profilesCollection);
 
   const [isFormOpen, setIsFormOpen] = useState(false);

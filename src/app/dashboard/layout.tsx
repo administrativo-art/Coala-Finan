@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const firestore = useFirestore();
   const router = useRouter();
 
-  const userDocRef = user && firestore ? doc(firestore, 'users', user.uid) : null;
+  const userDocRef = useMemo(() => (user && firestore ? doc(firestore, 'users', user.uid) : null), [user, firestore]);
   const { data: userProfile, loading: profileLoading } = useDoc(userDocRef);
 
   useEffect(() => {

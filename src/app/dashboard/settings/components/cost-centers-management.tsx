@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
@@ -69,9 +69,7 @@ type CostCenter = CostCenterFormValues & { id: string };
 export default function CostCentersManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const costCentersCollection = firestore
-    ? collection(firestore, 'costCenters')
-    : null;
+  const costCentersCollection = useMemo(() => (firestore ? collection(firestore, 'costCenters') : null), [firestore]);
   const {
     data: costCenters,
     loading: loading,

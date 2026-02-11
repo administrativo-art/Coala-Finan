@@ -39,7 +39,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { EconomicPreview } from './economic-preview';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { useCollection, useFirestore } from '@/firebase';
@@ -57,10 +57,10 @@ export default function ExpenseForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  const costCentersCollection = firestore ? collection(firestore, 'costCenters') : null;
+  const costCentersCollection = useMemo(() => (firestore ? collection(firestore, 'costCenters') : null), [firestore]);
   const { data: costCenters, loading: costCentersLoading } = useCollection(costCentersCollection);
 
-  const resultCentersCollection = firestore ? collection(firestore, 'resultCenters') : null;
+  const resultCentersCollection = useMemo(() => (firestore ? collection(firestore, 'resultCenters') : null), [firestore]);
   const { data: resultCenters, loading: resultCentersLoading } = useCollection(resultCentersCollection);
 
   const form = useForm<ExpenseFormValues>({
