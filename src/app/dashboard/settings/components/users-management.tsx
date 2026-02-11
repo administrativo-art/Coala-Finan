@@ -108,18 +108,30 @@ export default function UsersManagement() {
   };
 
   const onSubmit = async (values: UserFormValues) => {
-    if (!firestore || !editingUser) return;
+    if (!firestore) return;
     setIsSaving(true);
     try {
-      await setDoc(doc(firestore, 'users', editingUser.id), values, { merge: true });
-      toast({ title: 'Usuário atualizado com sucesso!' });
-      handleDialogClose();
+      if (editingUser) {
+        await setDoc(doc(firestore, 'users', editingUser.id), values, { merge: true });
+        toast({ title: 'Usuário atualizado com sucesso!' });
+        handleDialogClose();
+      } else {
+        // TODO: Implement server-side user creation (e.g., via a Cloud Function)
+        // This is because creating a user in Firebase Auth and then creating the
+        // Firestore doc with the correct UID should be a secure, atomic operation.
+        console.log('Attempted to create user:', values);
+        toast({
+          variant: 'destructive',
+          title: 'Função em desenvolvimento',
+          description: 'A criação de novos usuários pelo painel ainda não está implementada.',
+        });
+      }
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Não foi possível atualizar o usuário.',
+        description: 'Não foi possível salvar o usuário.',
       });
     } finally {
       setIsSaving(false);
@@ -166,7 +178,7 @@ export default function UsersManagement() {
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex items-center justify-end">
-          <Button disabled>
+          <Button onClick={() => handleDialogOpen()}>
             <UserPlus className="mr-2 h-4 w-4" />
             Adicionar Usuário
           </Button>
@@ -234,9 +246,9 @@ export default function UsersManagement() {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Usuário</DialogTitle>
+            <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} Usuário</DialogTitle>
             <DialogDescription>
-              Atualize o nome e o perfil de acesso do usuário.
+              {editingUser ? 'Atualize o nome e o perfil de acesso do usuário.' : 'Preencha os dados para criar um novo usuário.'}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -248,7 +260,7 @@ export default function UsersManagement() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} readOnly disabled />
+                      <Input placeholder="nome@empresa.com" {...field} readOnly={!!editingUser} disabled={!!editingUser} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
