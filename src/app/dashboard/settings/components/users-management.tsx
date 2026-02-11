@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -93,12 +94,12 @@ export default function UsersManagement() {
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
-    defaultValues: { name: '', email: '', profile: '' },
+    defaultValues: { name: '', email: '', profile: '', password: '' },
   });
 
   const handleDialogOpen = (user: UserProfile | null = null) => {
     setEditingUser(user);
-    form.reset(user || { name: '', email: '', profile: '' });
+    form.reset(user || { name: '', email: '', profile: '', password: '' });
     setIsFormOpen(true);
   };
 
@@ -112,7 +113,8 @@ export default function UsersManagement() {
     setIsSaving(true);
     try {
       if (editingUser) {
-        await setDoc(doc(firestore, 'users', editingUser.id), values, { merge: true });
+        const { password, ...updateData } = values;
+        await setDoc(doc(firestore, 'users', editingUser.id), updateData, { merge: true });
         toast({ title: 'Usuário atualizado com sucesso!' });
         handleDialogClose();
       } else {
@@ -279,6 +281,21 @@ export default function UsersManagement() {
                   </FormItem>
                 )}
               />
+              {!editingUser && (
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Mínimo de 6 caracteres" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="profile"
