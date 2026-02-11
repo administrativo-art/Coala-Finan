@@ -42,14 +42,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-
-const costCenters = [
-  'Despesas Administrativas',
-  'Marketing e Vendas',
-  'Pesquisa e Desenvolvimento',
-  'Custos Operacionais',
-];
-const resultCenters = ['Produto A', 'Produto B', 'Serviços', 'Corporativo'];
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CalculatedInstallment {
   number: number;
@@ -59,6 +55,14 @@ interface CalculatedInstallment {
 
 export default function ExpenseForm() {
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const costCentersCollection = firestore ? collection(firestore, 'costCenters') : null;
+  const { data: costCenters, loading: costCentersLoading } = useCollection(costCentersCollection);
+
+  const resultCentersCollection = firestore ? collection(firestore, 'resultCenters') : null;
+  const { data: resultCenters, loading: resultCentersLoading } = useCollection(resultCentersCollection);
+
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
@@ -66,6 +70,13 @@ export default function ExpenseForm() {
       paymentMethod: 'single',
       apportionments: [{ resultCenter: '', percentage: 100 }],
       variedInstallments: [],
+      costCenter: '',
+      description: '',
+      supplier: '',
+      notes: '',
+      resultCenter: '',
+      totalValue: 0,
+      installments: 2
     },
     mode: 'onChange',
   });
@@ -75,7 +86,7 @@ export default function ExpenseForm() {
     name: 'apportionments',
   });
 
-  const { fields: installmentFields, append: appendInstallment, remove: removeInstallment, replace: replaceInstallments } = useFieldArray({
+  const { fields: installmentFields, append: appendInstallment, remove: removeInstallment } = useFieldArray({
     control: form.control,
     name: 'variedInstallments',
   });
@@ -111,7 +122,7 @@ export default function ExpenseForm() {
     if (paymentMethod === 'installments' && installmentType === 'varied' && qty && qty >= 2) {
       if (qty > currentFields.length) {
         const toAdd = qty - currentFields.length;
-        const baseValue = totalValue / qty;
+        const baseValue = (totalValue || 0) / qty;
         for (let i = 0; i < toAdd; i++) {
           appendInstallment({ dueDate: new Date(), value: baseValue > 0 ? baseValue : 0 }, { shouldFocus: false });
         }
@@ -136,13 +147,13 @@ export default function ExpenseForm() {
     if (
       paymentMethod === 'installments' &&
       installmentType === 'equal' &&
-      totalValue > 0 &&
+      totalValue && totalValue > 0 &&
       installmentsQty &&
       installmentsQty >= 2 &&
       firstInstallmentDueDate
     ) {
       const baseValue = Math.floor((totalValue * 100) / installmentsQty) / 100;
-      const remainder = totalValue - baseValue * installmentsQty;
+      const remainder = parseFloat((totalValue - baseValue * installmentsQty).toFixed(2));
       const installments: CalculatedInstallment[] = [];
 
       for (let i = 0; i < installmentsQty; i++) {
@@ -159,7 +170,7 @@ export default function ExpenseForm() {
             dueDate = addMonths(firstInstallmentDueDate, i);
             break;
         }
-
+        
         installments.push({
           number: i + 1,
           dueDate,
@@ -190,10 +201,10 @@ export default function ExpenseForm() {
                     <FormLabel>Centro de Custo</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Selecione um centro de custo" /></SelectTrigger>
+                        <SelectTrigger disabled={costCentersLoading}><SelectValue placeholder="Selecione um centro de custo" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {costCenters.map(cc => <SelectItem key={cc} value={cc}>{cc}</SelectItem>)}
+                        {costCenters?.map(cc => <SelectItem key={cc.id} value={cc.name}>{cc.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -228,7 +239,7 @@ export default function ExpenseForm() {
                   <FormItem>
                     <FormLabel>Valor Total (R$)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="150,00" {...field} value={field.value ?? ''} />
+                      <Input type="number" placeholder="150,00" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -346,7 +357,7 @@ export default function ExpenseForm() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Qtde. Parcelas</FormLabel>
-                              <FormControl><Input type="number" min={2} placeholder="Ex: 12" {...field} value={field.value ?? ''} /></FormControl>
+                              <FormControl><Input type="number" min={2} placeholder="Ex: 12" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? 2} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -429,7 +440,7 @@ export default function ExpenseForm() {
                           render={({ field }) => (
                             <FormItem className="max-w-xs">
                               <FormLabel>Quantidade de Parcelas</FormLabel>
-                              <FormControl><Input type="number" min={2} placeholder="Ex: 3" {...field} value={field.value ?? ''} /></FormControl>
+                              <FormControl><Input type="number" min={2} placeholder="Ex: 3" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? 2} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -445,7 +456,7 @@ export default function ExpenseForm() {
                                     name={`variedInstallments.${index}.dueDate`}
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Vencimento</FormLabel>
+                                        {index === 0 && <FormLabel>Vencimento</FormLabel>}
                                         <Popover>
                                           <PopoverTrigger asChild>
                                             <FormControl>
@@ -468,14 +479,14 @@ export default function ExpenseForm() {
                                     name={`variedInstallments.${index}.value`}
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Valor (R$)</FormLabel>
-                                        <FormControl><Input type="number" placeholder="R$" {...field} value={field.value ?? ''} /></FormControl>
+                                        {index === 0 && <FormLabel>Valor (R$)</FormLabel>}
+                                        <FormControl><Input type="number" placeholder="R$" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl>
                                         <FormMessage />
                                       </FormItem>
                                     )}
                                   />
                                   <div>
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeInstallment(index)}><Trash2 className="h-4 w-4" /></Button>
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeInstallment(index)} disabled={installmentFields.length <= 1}><Trash2 className="h-4 w-4" /></Button>
                                   </div>
                               </div>
                             ))}
@@ -491,7 +502,7 @@ export default function ExpenseForm() {
                                  <span>Diferença:</span>
                                  <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(variedInstallmentsDifference)}</span>
                                </div>
-                               <FormMessage>{form.formState.errors.variedInstallments?.message}</FormMessage>
+                               {form.formState.errors.variedInstallments && <FormMessage>{form.formState.errors.variedInstallments.message}</FormMessage>}
                             </CardFooter>
                         )}
                     </div>
@@ -500,7 +511,6 @@ export default function ExpenseForm() {
               )}
             </CardContent>
           </Card>
-
 
           <Card>
             <CardHeader>
@@ -528,9 +538,9 @@ export default function ExpenseForm() {
                       <FormItem>
                         <FormLabel>Centro de Resultado</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl><SelectTrigger><SelectValue placeholder="Selecione um centro de resultado" /></SelectTrigger></FormControl>
+                          <FormControl><SelectTrigger disabled={resultCentersLoading}><SelectValue placeholder="Selecione um centro de resultado" /></SelectTrigger></FormControl>
                           <SelectContent>
-                            {resultCenters.map(rc => <SelectItem key={rc} value={rc}>{rc}</SelectItem>)}
+                            {resultCenters?.map(rc => <SelectItem key={rc.id} value={rc.name}>{rc.name}</SelectItem>)}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -546,11 +556,11 @@ export default function ExpenseForm() {
                             name={`apportionments.${index}.resultCenter`}
                             render={({ field }) => (
                               <FormItem className="flex-1">
-                                <FormLabel>Centro de Resultado</FormLabel>
+                                {index === 0 && <FormLabel>Centro de Resultado</FormLabel>}
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
+                                  <FormControl><SelectTrigger disabled={resultCentersLoading}><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl>
                                   <SelectContent>
-                                    {resultCenters.map(rc => <SelectItem key={rc} value={rc}>{rc}</SelectItem>)}
+                                    {resultCenters?.map(rc => <SelectItem key={rc.id} value={rc.name}>{rc.name}</SelectItem>)}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -562,8 +572,8 @@ export default function ExpenseForm() {
                             name={`apportionments.${index}.percentage`}
                             render={({ field }) => (
                               <FormItem className="w-28">
-                                <FormLabel>Perc. (%)</FormLabel>
-                                <FormControl><Input type="number" placeholder="%" {...field} value={field.value ?? ''} /></FormControl>
+                                {index === 0 && <FormLabel>Perc. (%)</FormLabel>}
+                                <FormControl><Input type="number" placeholder="%" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} value={field.value ?? ''} /></FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -576,7 +586,7 @@ export default function ExpenseForm() {
                     <Button type="button" variant="outline" size="sm" onClick={() => appendApportionment({ resultCenter: '', percentage: 0 })}>
                       <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Rateio
                     </Button>
-                    <FormMessage>{form.formState.errors.apportionments?.message}</FormMessage>
+                    {form.formState.errors.apportionments && <FormMessage>{form.formState.errors.apportionments.message}</FormMessage>}
                   </div>
                 )}
             </CardContent>

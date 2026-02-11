@@ -42,6 +42,42 @@
       "required": [
         "name"
       ]
+    },
+    "costCenter": {
+      "title": "Cost Center",
+      "description": "A cost center for categorizing expenses.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the cost center."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the cost center."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "resultCenter": {
+      "title": "Result Center",
+      "description": "A result center for allocating expenses.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the result center."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the result center."
+        }
+      },
+      "required": [
+        "name"
+      ]
     }
   },
   "auth": {
@@ -61,6 +97,18 @@
         "$ref": "#/entities/accessProfile"
       },
       "description": "Access profile definitions."
+    },
+    "/costCenters/{centerId}": {
+      "schema": {
+        "$ref": "#/entities/costCenter"
+      },
+      "description": "Cost center definitions."
+    },
+    "/resultCenters/{centerId}": {
+      "schema": {
+        "$ref": "#/entities/resultCenter"
+      },
+      "description": "Result center definitions."
     }
   }
 }
