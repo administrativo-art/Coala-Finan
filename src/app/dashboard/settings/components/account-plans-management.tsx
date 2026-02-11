@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -284,14 +283,14 @@ export default function AccountPlansManagement() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Conta Pai (Opcional)</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(value === '' ? null : value)} value={field.value || ''} >
+                    <Select onValueChange={(value) => field.onChange(value === 'null' ? null : value)} value={field.value ?? 'null'} >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma conta pai (se houver)" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhuma (Conta Raiz)</SelectItem>
+                        <SelectItem value="null">Nenhuma (Conta Raiz)</SelectItem>
                         {flattenedAccounts.map((account) => (
                            <SelectItem key={account.id} value={account.id} disabled={editingAccountPlan?.id === account.id}>
                            <span style={{ paddingLeft: `${(account.level || 0) * 1}rem` }}>{account.name}</span>
