@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -5,8 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDoc, collection, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import {
-  CostCenterFormValues,
-  costCenterFormSchema,
+  AccountPlanFormValues,
+  accountPlanFormSchema,
 } from '@/lib/schemas';
 import { useCollection, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -33,7 +34,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -63,54 +63,77 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, MoreHorizontal, PlusCircle } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-type CostCenter = CostCenterFormValues & { id: string };
+type AccountPlan = AccountPlanFormValues & { id: string, children?: AccountPlan[], level?: number };
 
-export default function CostCentersManagement() {
+const buildTree = (items: AccountPlan[], parentId: string | null = null): AccountPlan[] =>
+  items
+    .filter((item) => item.parentId === parentId)
+    .map((item) => ({ ...item, children: buildTree(items, item.id) }));
+
+const flattenTree = (nodes: AccountPlan[], level = 0): AccountPlan[] =>
+  nodes.flatMap((node) => [
+    { ...node, level },
+    ...flattenTree(node.children || [], level + 1),
+  ]);
+
+export default function AccountPlansManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const costCentersCollection = useMemo(() => (firestore ? collection(firestore, 'costCenters') : null), [firestore]);
+  const accountPlansCollection = useMemo(() => (firestore ? collection(firestore, 'accountPlans') : null), [firestore]);
   const {
-    data: costCenters,
+    data: rawAccountPlans,
     loading: loading,
-    error,
-  } = useCollection(costCentersCollection);
+  } = useCollection(accountPlansCollection);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editingCostCenter, setEditingCostCenter] = useState<CostCenter | null>(
+  const [editingAccountPlan, setEditingAccountPlan] = useState<AccountPlan | null>(
     null
   );
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const form = useForm<CostCenterFormValues>({
-    resolver: zodResolver(costCenterFormSchema),
-    defaultValues: { name: '', description: '' },
+  const form = useForm<AccountPlanFormValues>({
+    resolver: zodResolver(accountPlanFormSchema),
+    defaultValues: { name: '', description: '', parentId: null },
   });
 
-  const handleDialogOpen = (costCenter: CostCenter | null = null) => {
-    setEditingCostCenter(costCenter);
-    form.reset(costCenter || { name: '', description: '' });
+  const flattenedAccounts = useMemo(() => {
+    if (!rawAccountPlans) return [];
+    const tree = buildTree(rawAccountPlans as AccountPlan[]);
+    return flattenTree(tree);
+  }, [rawAccountPlans]);
+
+  const handleDialogOpen = (accountPlan: AccountPlan | null = null) => {
+    setEditingAccountPlan(accountPlan);
+    form.reset(accountPlan ? { name: accountPlan.name, description: accountPlan.description, parentId: accountPlan.parentId } : { name: '', description: '', parentId: null });
     setIsFormOpen(true);
   };
 
   const handleDialogClose = () => {
     setIsFormOpen(false);
-    setEditingCostCenter(null);
+    setEditingAccountPlan(null);
   };
 
-  const onSubmit = async (values: CostCenterFormValues) => {
-    if (!firestore) return;
+  const onSubmit = async (values: AccountPlanFormValues) => {
+    if (!firestore || !accountPlansCollection) return;
     setIsSaving(true);
     try {
-      if (editingCostCenter) {
-        await setDoc(doc(firestore, 'costCenters', editingCostCenter.id), values);
-        toast({ title: 'Centro de custo atualizado com sucesso!' });
+      if (editingAccountPlan) {
+        await setDoc(doc(firestore, 'accountPlans', editingAccountPlan.id), values);
+        toast({ title: 'Conta atualizada com sucesso!' });
       } else {
-        await addDoc(collection(firestore, 'costCenters'), values);
-        toast({ title: 'Centro de custo adicionado com sucesso!' });
+        await addDoc(accountPlansCollection, values);
+        toast({ title: 'Conta adicionada com sucesso!' });
       }
       handleDialogClose();
     } catch (error) {
@@ -118,7 +141,7 @@ export default function CostCentersManagement() {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Não foi possível salvar o centro de custo.',
+        description: 'Não foi possível salvar a conta.',
       });
     } finally {
       setIsSaving(false);
@@ -128,13 +151,13 @@ export default function CostCentersManagement() {
   const handleDelete = async () => {
     if (!firestore || !deletingId) return;
     try {
-      await deleteDoc(doc(firestore, 'costCenters', deletingId));
-      toast({ title: 'Centro de custo excluído com sucesso!' });
+      await deleteDoc(doc(firestore, 'accountPlans', deletingId));
+      toast({ title: 'Conta excluída com sucesso!' });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Erro ao excluir',
-        description: 'Não foi possível excluir o centro de custo.',
+        description: 'Não foi possível excluir a conta.',
       });
     } finally {
       setIsAlertOpen(false);
@@ -145,16 +168,16 @@ export default function CostCentersManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Centros de Custo</CardTitle>
+        <CardTitle>Plano de Contas</CardTitle>
         <CardDescription>
-          Gerencie os centros de custo para categorizar as despesas.
+          Gerencie a estrutura hierárquica do seu plano de contas.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Centro de Custo
+            Adicionar Conta
           </Button>
         </div>
         <Table>
@@ -175,11 +198,13 @@ export default function CostCentersManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              costCenters &&
-              costCenters.map((cc) => (
-                <TableRow key={cc.id}>
-                  <TableCell className="font-medium">{cc.name}</TableCell>
-                  <TableCell>{cc.description}</TableCell>
+              flattenedAccounts &&
+              flattenedAccounts.map((account) => (
+                <TableRow key={account.id}>
+                  <TableCell className="font-medium" style={{ paddingLeft: `${(account.level || 0) * 1.5}rem` }}>
+                    {account.name}
+                  </TableCell>
+                  <TableCell>{account.description}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -192,14 +217,14 @@ export default function CostCentersManagement() {
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          onClick={() => handleDialogOpen(cc)}
+                          onClick={() => handleDialogOpen(account)}
                         >
                           Editar
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
                           onClick={() => {
-                            setDeletingId(cc.id);
+                            setDeletingId(account.id);
                             setIsAlertOpen(true);
                           }}
                         >
@@ -219,10 +244,10 @@ export default function CostCentersManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingCostCenter ? 'Editar' : 'Adicionar'} Centro de Custo
+              {editingAccountPlan ? 'Editar' : 'Adicionar'} Conta
             </DialogTitle>
             <DialogDescription>
-              Preencha os detalhes do centro de custo.
+              Preencha os detalhes da conta do plano de contas.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -253,6 +278,31 @@ export default function CostCentersManagement() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="parentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Conta Pai (Opcional)</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ''} >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma conta pai (se houver)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Nenhuma (Conta Raiz)</SelectItem>
+                        {flattenedAccounts.map((account) => (
+                           <SelectItem key={account.id} value={account.id} disabled={editingAccountPlan?.id === account.id}>
+                           <span style={{ paddingLeft: `${(account.level || 0) * 1}rem` }}>{account.name}</span>
+                         </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
                 <Button
                   type="button"
@@ -276,8 +326,7 @@ export default function CostCentersManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente o
-              centro de custo.
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente a conta. Se houver contas filhas, elas ficarão órfãs.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

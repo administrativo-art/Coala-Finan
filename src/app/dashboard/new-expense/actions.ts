@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generateExpenseInsights, ExpenseInsightsInput } from '@/ai/flows/expense-insights';
@@ -15,8 +16,8 @@ export async function getExpenseInsightsAction(
 
   try {
     const insightInput: ExpenseInsightsInput = {
-      costCenter: formData.costCenter,
-      costCenterPath: formData.costCenter,
+      costCenter: formData.accountPlan, // Mapeando accountPlan para costCenter
+      costCenterPath: formData.accountPlan,
       resultCenters: formData.isApportioned
         ? formData.apportionments!.map(a => ({ name: a.resultCenter, percentage: a.percentage }))
         : [{ name: formData.resultCenter!, percentage: 100 }],

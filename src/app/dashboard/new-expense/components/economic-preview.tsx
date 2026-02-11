@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -102,8 +103,8 @@ export function EconomicPreview() {
           {getInstallmentSummary()}
         </div>
         <Separator />
-        <p className="font-medium text-muted-foreground">Centro de Custo:</p>
-        <p>{watchedValues.costCenter || 'Não definido'}</p>
+        <p className="font-medium text-muted-foreground">Plano de Contas:</p>
+        <p>{watchedValues.accountPlan || 'Não definido'}</p>
         <p className="font-medium text-muted-foreground">Centro(s) de Resultado:</p>
         {watchedValues.isApportioned ? (
           <ul className="list-disc pl-5">

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "user": {
@@ -43,18 +44,22 @@
         "name"
       ]
     },
-    "costCenter": {
-      "title": "Cost Center",
-      "description": "A cost center for categorizing expenses.",
+    "accountPlan": {
+      "title": "Plano de Contas",
+      "description": "Uma conta no plano de contas para categorizar despesas.",
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
-          "description": "The name of the cost center."
+          "description": "O nome da conta."
         },
         "description": {
           "type": "string",
-          "description": "A brief description of the cost center."
+          "description": "Uma breve descrição da conta."
+        },
+        "parentId": {
+          "type": ["string", "null"],
+          "description": "O ID da conta pai. Nulo para contas de nível raiz."
         }
       },
       "required": [
@@ -98,11 +103,11 @@
       },
       "description": "Access profile definitions."
     },
-    "/costCenters/{centerId}": {
+    "/accountPlans/{planId}": {
       "schema": {
-        "$ref": "#/entities/costCenter"
+        "$ref": "#/entities/accountPlan"
       },
-      "description": "Cost center definitions."
+      "description": "Definições do plano de contas."
     },
     "/resultCenters/{centerId}": {
       "schema": {

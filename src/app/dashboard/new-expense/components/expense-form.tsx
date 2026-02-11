@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -52,16 +53,35 @@ interface CalculatedInstallment {
   dueDate: Date;
   value: number;
 }
+type AccountPlan = { id: string, name: string, parentId: string | null };
+
+const buildTree = (items: AccountPlan[], parentId: string | null = null): any[] =>
+  items
+    .filter((item) => item.parentId === parentId)
+    .map((item) => ({ ...item, children: buildTree(items, item.id) }));
+
+const flattenTree = (nodes: any[], level = 0): any[] =>
+  nodes.flatMap((node) => [
+    { ...node, level, isParent: node.children.length > 0 },
+    ...flattenTree(node.children, level + 1),
+  ]);
+
 
 export default function ExpenseForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
-  const costCentersCollection = useMemo(() => (firestore ? collection(firestore, 'costCenters') : null), [firestore]);
-  const { data: costCenters, loading: costCentersLoading } = useCollection(costCentersCollection);
+  const accountPlansCollection = useMemo(() => (firestore ? collection(firestore, 'accountPlans') : null), [firestore]);
+  const { data: accountPlans, loading: accountPlansLoading } = useCollection(accountPlansCollection);
 
   const resultCentersCollection = useMemo(() => (firestore ? collection(firestore, 'resultCenters') : null), [firestore]);
   const { data: resultCenters, loading: resultCentersLoading } = useCollection(resultCentersCollection);
+
+  const flattenedAccounts = useMemo(() => {
+    if (!accountPlans) return [];
+    const tree = buildTree(accountPlans as AccountPlan[]);
+    return flattenTree(tree);
+  }, [accountPlans]);
 
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseFormSchema),
@@ -70,7 +90,7 @@ export default function ExpenseForm() {
       paymentMethod: 'single',
       apportionments: [{ resultCenter: '', percentage: 100 }],
       variedInstallments: [],
-      costCenter: '',
+      accountPlan: '',
       description: '',
       supplier: '',
       notes: '',
@@ -195,16 +215,26 @@ export default function ExpenseForm() {
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="costCenter"
+                name="accountPlan"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Centro de Custo</FormLabel>
+                    <FormLabel>Plano de Contas</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger disabled={costCentersLoading}><SelectValue placeholder="Selecione um centro de custo" /></SelectTrigger>
+                        <SelectTrigger disabled={accountPlansLoading}><SelectValue placeholder="Selecione uma conta" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {costCenters?.map(cc => <SelectItem key={cc.id} value={cc.name}>{cc.name}</SelectItem>)}
+                        {flattenedAccounts?.map(account => 
+                        <SelectItem 
+                            key={account.id} 
+                            value={account.id} 
+                            disabled={account.isParent}
+                        >
+                            <span style={{ paddingLeft: `${account.level * 1.5}rem` }}>
+                                {account.name}
+                            </span>
+                        </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />

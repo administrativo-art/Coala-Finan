@@ -1,8 +1,9 @@
+
 import { z } from 'zod';
 
 export const expenseFormSchema = z
   .object({
-    costCenter: z.string().min(1, 'Centro de custo é obrigatório.'),
+    accountPlan: z.string().min(1, 'O plano de contas é obrigatório.'),
     description: z
       .string()
       .min(10, 'A descrição deve ter pelo menos 10 caracteres.'),
@@ -135,13 +136,14 @@ export const profileFormSchema = z.object({
 });
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-export const costCenterFormSchema = z.object({
+export const accountPlanFormSchema = z.object({
   name: z
     .string()
-    .min(3, 'O nome do centro de custo deve ter pelo menos 3 caracteres.'),
+    .min(3, 'O nome da conta deve ter pelo menos 3 caracteres.'),
   description: z.string().optional(),
+  parentId: z.string().nullable().optional(),
 });
-export type CostCenterFormValues = z.infer<typeof costCenterFormSchema>;
+export type AccountPlanFormValues = z.infer<typeof accountPlanFormSchema>;
 
 export const resultCenterFormSchema = z.object({
   name: z

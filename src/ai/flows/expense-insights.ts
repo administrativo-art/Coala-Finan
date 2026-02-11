@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates expense insights using GenAI to aid in decision-making.
@@ -11,8 +12,8 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ExpenseInsightsInputSchema = z.object({
-  costCenter: z.string().describe('The cost center for the expense.'),
-  costCenterPath: z.string().describe('The full path of the cost center in the hierarchical structure.'),
+  costCenter: z.string().describe('O plano de contas para a despesa.'),
+  costCenterPath: z.string().describe('O caminho completo do plano de contas na estrutura hierárquica.'),
   resultCenters: z.array(
     z.object({
       name: z.string().describe('The name of the result center.'),
@@ -45,8 +46,8 @@ const expenseInsightsPrompt = ai.definePrompt({
   Analyze the following expense data and provide a concise summary of key insights, including potential impacts on cost allocation, and economic forecasting.
 
   Description: {{{description}}}
-  Cost Center: {{{costCenter}}}
-  Cost Center Path: {{{costCenterPath}}}
+  Plano de Contas: {{{costCenter}}}
+  Caminho do Plano de Contas: {{{costCenterPath}}}
   Result Centers: {{#each resultCenters}}{{{name}}} ({{{percentage}}}%){{#unless @last}}, {{/unless}}{{/each}}
   Total Value: {{{totalValue}}}
   Competence Date: {{{competenceDate}}}
