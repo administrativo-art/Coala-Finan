@@ -1,10 +1,10 @@
-// Note: This is a project-specific configuration. Do not edit.
+// As chaves são carregadas a partir de variáveis de ambiente (arquivo .env)
 export const firebaseConfig = {
-  apiKey: 'AIzaSyBcCr_Dj-UooWC8RM8rBlbxJ5UBq0f23As',
-  authDomain: 'coalafinan.firebaseapp.com',
-  projectId: 'coalafinan',
-  storageBucket: 'coalafinan.appspot.com',
-  messagingSenderId: '208727865874',
-  appId: '1:208727865874:web:efcb7b43f7e26b2acbf6cb',
-  measurementId: '',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
