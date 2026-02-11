@@ -45,7 +45,7 @@ export default function LoginPage() {
         await setDoc(userDocRef, {
           name: user.displayName || email.split('@')[0] || 'Novo Usuário',
           email: user.email,
-          profile: 'Operacional', // Default profile
+          profile: '', // No default profile
         });
       }
 

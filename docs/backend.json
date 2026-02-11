@@ -22,8 +22,7 @@
       },
       "required": [
         "name",
-        "email",
-        "profile"
+        "email"
       ]
     },
     "accessProfile": {

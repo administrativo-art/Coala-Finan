@@ -156,7 +156,7 @@ export type ResultCenterFormValues = z.infer<typeof resultCenterFormSchema>;
 export const userFormSchema = z.object({
   email: z.string().email('Email inválido.'),
   name: z.string().min(3, 'O nome do usuário deve ter pelo menos 3 caracteres.'),
-  profile: z.string().min(1, 'O perfil de acesso é obrigatório.'),
+  profile: z.string().optional(),
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.').optional(),
 });
 export type UserFormValues = z.infer<typeof userFormSchema>;
