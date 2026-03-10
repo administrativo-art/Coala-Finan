@@ -1,3 +1,4 @@
+
 'use server';
 
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
@@ -11,21 +12,24 @@ function getAdminApp() {
   const privateKey = process.env.FIREBASE_PRIVATE_KEY;
   const projectId = 'coalafinan';
 
-  if (!clientEmail || !privateKey) {
-    throw new Error('CONFIG_MISSING');
+  // Se as variáveis de ambiente existirem (ex: em dev local ou se conseguir configurar no futuro)
+  if (clientEmail && privateKey) {
+    const serviceAccount: ServiceAccount = {
+      projectId,
+      clientEmail,
+      privateKey: privateKey.replace(/\\n/g, '\n'),
+    };
+
+    return initializeApp({
+      credential: cert(serviceAccount),
+    }, 'admin-app');
   }
 
-  // A chave privada vinda do Secret Manager/Environment costuma conter strings de \n literais.
-  // O replace garante que o Node.js as interprete corretamente como quebras de linha reais.
-  const serviceAccount: ServiceAccount = {
-    projectId,
-    clientEmail,
-    privateKey: privateKey.replace(/\\n/g, '\n'),
-  };
-
+  // Caso contrário, tenta usar a Identidade da Hospedagem (ADC)
+  // Isso funciona automaticamente no Firebase App Hosting se as permissões IAM estiverem corretas
   return initializeApp({
-    credential: cert(serviceAccount),
-  });
+    projectId,
+  }, 'admin-app');
 }
 
 export async function createUserAction(data: {
@@ -35,19 +39,7 @@ export async function createUserAction(data: {
   profile: string;
 }): Promise<{ success: true } | { success: false; error: string }> {
   try {
-    let app;
-    try {
-      app = getAdminApp();
-    } catch (e: any) {
-      if (e.message === 'CONFIG_MISSING') {
-        return { 
-          success: false, 
-          error: 'Configuração ausente: Os segredos FIREBASE_CLIENT_EMAIL ou FIREBASE_PRIVATE_KEY não foram encontrados no ambiente de execução.' 
-        };
-      }
-      throw e;
-    }
-
+    const app = getAdminApp();
     const adminAuth = getAuth(app);
     const adminDb = getFirestore(app);
 
@@ -70,9 +62,18 @@ export async function createUserAction(data: {
     return { success: true };
   } catch (error: any) {
     console.error('createUserAction error:', error);
+    
+    // Erros comuns de permissão para ajudar no debug
+    if (error.code === 'insufficient-permissions' || error.message?.includes('permission')) {
+      return { 
+        success: false, 
+        error: 'Erro de permissão: Certifique-se de que a conta de serviço do App Hosting tem o papel "Administrador do Firebase Authentication" no console IAM.' 
+      };
+    }
+
     if (error.code === 'auth/email-already-exists') {
       return { success: false, error: 'Este e-mail já está em uso por outro usuário.' };
     }
-    return { success: false, error: 'Erro ao criar usuário: ' + (error.message || 'Ocorreu um erro inesperado no servidor.') };
+    return { success: false, error: 'Erro ao criar usuário: ' + (error.message || 'Ocorreu um erro inesperado.') };
   }
 }
