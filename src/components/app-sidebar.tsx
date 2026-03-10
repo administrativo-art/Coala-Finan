@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -8,6 +9,7 @@ import {
   LayoutDashboard,
   PiggyBank,
   Settings,
+  Building2,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -41,6 +43,11 @@ const mainNavItems = [
 ];
 
 const systemNavItems = [
+  {
+    href: '/dashboard/settings/accounts',
+    icon: Building2,
+    label: 'Contas Bancárias',
+  },
   {
     href: '/dashboard/settings',
     icon: Settings,

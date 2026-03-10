@@ -170,3 +170,22 @@ export const userFormSchema = z.object({
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres.').optional(),
 });
 export type UserFormValues = z.infer<typeof userFormSchema>;
+
+export const paymentMethodSchema = z.object({
+  id: z.string(),
+  type: z.enum(['debit_card', 'credit_card', 'pix', 'transfer', 'cash']),
+  label: z.string().min(1, 'Rótulo é obrigatório.'),
+  lastDigits: z.string().max(4).optional(),
+  limit: z.coerce.number().optional(),
+  pixKey: z.string().optional(),
+});
+
+export const bankAccountSchema = z.object({
+  name: z.string().min(2, 'Nome da instituição é obrigatório.'),
+  agency: z.string().optional(),
+  accountNumber: z.string().optional(),
+  active: z.boolean().default(true),
+  paymentMethods: z.array(paymentMethodSchema).min(1, 'Adicione pelo menos uma forma de pagamento.'),
+});
+export type BankAccountFormValues = z.infer<typeof bankAccountSchema>;
+export type PaymentMethodValues = z.infer<typeof paymentMethodSchema>;

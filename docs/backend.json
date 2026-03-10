@@ -126,6 +126,36 @@
           "type": "string"
         }
       }
+    },
+    "bankAccount": {
+      "title": "Conta Bancária",
+      "description": "Uma conta bancária ou instituição financeira.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "agency": {
+          "type": "string"
+        },
+        "accountNumber": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "paymentMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "type": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        }
+      }
     }
   },
   "auth": {
@@ -163,6 +193,12 @@
         "$ref": "#/entities/expense"
       },
       "description": "Registros de despesas e provisões."
+    },
+    "/bankAccounts/{accountId}": {
+      "schema": {
+        "$ref": "#/entities/bankAccount"
+      },
+      "description": "Contas bancárias e carteiras."
     }
   }
 }
