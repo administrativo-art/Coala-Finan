@@ -44,15 +44,18 @@ export function useCollection<T = DocumentData>(
           retryCount.current = 0; // Reset retry count on success
         },
         async (serverError) => {
-          // Trata erros de conexão/offline com retry exponencial
-          const isOfflineError = 
+          // Trata erros de conexão/offline de forma silenciosa
+          const isNetworkError = 
             serverError.code === 'unavailable' || 
             serverError.code === 'unknown' ||
             serverError.message.toLowerCase().includes('offline') ||
             serverError.message.toLowerCase().includes('network');
 
-          if (isOfflineError) {
+          if (isNetworkError) {
             setOffline(true);
+            // Se já temos dados em cache, paramos o loading
+            if (data) setLoading(false);
+            
             if (retryCount.current < 5) {
               const delay = Math.min(1000 * Math.pow(2, retryCount.current), 16000);
               retryCount.current += 1;
@@ -65,18 +68,22 @@ export function useCollection<T = DocumentData>(
             return;
           }
 
-          let path = 'unknown collection path';
-          if (q && 'path' in q && typeof q.path === 'string') {
-              path = q.path;
-          }
+          // Apenas erros de permissão devem ser emitidos para o listener global
+          if (serverError.code === 'permission-denied') {
+            let path = 'unknown collection path';
+            if (q && 'path' in q && typeof q.path === 'string') {
+                path = q.path;
+            }
 
-          const permissionError = new FirestorePermissionError({
-            path: path,
-            operation: 'list',
-          } satisfies SecurityRuleContext);
+            const permissionError = new FirestorePermissionError({
+              path: path,
+              operation: 'list',
+            } satisfies SecurityRuleContext);
+            
+            errorEmitter.emit('permission-error', permissionError);
+            setError(permissionError);
+          }
           
-          errorEmitter.emit('permission-error', permissionError);
-          setError(permissionError);
           setLoading(false);
           setData(null);
         }

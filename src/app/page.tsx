@@ -37,16 +37,24 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Check if user profile exists in Firestore, if not, create it
+      // Check if user profile exists in Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userDocSnap = await getDoc(userDocRef);
+      
+      try {
+        // Tenta buscar o documento com um timeout implícito ou tratando erro de rede
+        const userDocSnap = await getDoc(userDocRef);
 
-      if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, {
-          name: user.displayName || email.split('@')[0] || 'Novo Usuário',
-          email: user.email,
-          profile: '', // No default profile
-        });
+        if (!userDocSnap.exists()) {
+          await setDoc(userDocRef, {
+            name: user.displayName || email.split('@')[0] || 'Novo Usuário',
+            email: user.email,
+            profile: '',
+          });
+        }
+      } catch (firestoreError) {
+        // Se falhar a busca do perfil por rede, não bloqueamos o login.
+        // O Dashboard cuidará da carga do perfil via onSnapshot resiliente.
+        console.warn('Não foi possível verificar/criar o perfil agora, mas o login prosseguirá.', firestoreError);
       }
 
       router.push('/dashboard');

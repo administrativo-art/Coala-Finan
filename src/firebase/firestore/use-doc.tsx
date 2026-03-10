@@ -46,15 +46,17 @@ export function useDoc<T = DocumentData>(
           retryCount.current = 0; // Reset retry count on success
         },
         async (serverError) => {
-          // Trata erros de conexão/offline com retry exponencial
-          const isOfflineError = 
+          // Trata erros de conexão/offline de forma silenciosa
+          const isNetworkError = 
             serverError.code === 'unavailable' || 
             serverError.code === 'unknown' ||
             serverError.message.toLowerCase().includes('offline') ||
             serverError.message.toLowerCase().includes('network');
 
-          if (isOfflineError) {
+          if (isNetworkError) {
             setOffline(true);
+            if (data) setLoading(false);
+
             if (retryCount.current < 5) {
               const delay = Math.min(1000 * Math.pow(2, retryCount.current), 16000);
               retryCount.current += 1;
@@ -67,13 +69,17 @@ export function useDoc<T = DocumentData>(
             return;
           }
 
-          const permissionError = new FirestorePermissionError({
-            path: docRef!.path,
-            operation: 'get',
-          } satisfies SecurityRuleContext);
-          
-          errorEmitter.emit('permission-error', permissionError);
-          setError(permissionError);
+          // Apenas erros de permissão devem ser emitidos
+          if (serverError.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+              path: docRef!.path,
+              operation: 'get',
+            } satisfies SecurityRuleContext);
+            
+            errorEmitter.emit('permission-error', permissionError);
+            setError(permissionError);
+          }
+
           setLoading(false);
           setData(null);
         }
