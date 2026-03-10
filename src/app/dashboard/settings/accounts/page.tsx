@@ -33,7 +33,8 @@ export default function AccountsPage() {
   const { toast } = useToast();
 
   const accountsRef = useMemo(() => (firestore ? collection(firestore, 'bankAccounts') : null), [firestore]);
-  const { data: accounts = [], loading } = useCollection<any>(accountsRef);
+  const { data: accountsData, loading } = useCollection<any>(accountsRef);
+  const accounts = accountsData || [];
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);

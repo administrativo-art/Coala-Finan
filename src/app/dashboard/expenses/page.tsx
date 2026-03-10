@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PayExpenseDialog } from '@/components/pay-expense-dialog';
 import {
   MoreHorizontal, XCircle, Pencil, Trash2,
-  Search, Download, AlertTriangle, Clock, CircleDollarSign, Filter, Receipt, ExternalLink
+  Search, Download, AlertTriangle, Clock, CircleDollarSign, Filter, Receipt, ExternalLink, CheckCircle2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -58,7 +58,7 @@ export default function ExpensesPage() {
   const router = useRouter();
 
   const expensesRef = useMemo(() => (firestore ? collection(firestore, 'expenses') : null), [firestore]);
-  const { data: expenses = [], loading } = useCollection<any>(expensesRef);
+  const { data: expenses, loading } = useCollection<any>(expensesRef);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -73,6 +73,7 @@ export default function ExpensesPage() {
   });
 
   const filtered = useMemo(() => {
+    if (!expenses) return [];
     const now = startOfDay(new Date());
     return expenses.filter(e => {
       const matchSearch = !search || 
@@ -97,6 +98,7 @@ export default function ExpensesPage() {
   }, [expenses, search, statusFilter]);
 
   const totals = useMemo(() => {
+    if (!expenses) return { pending: 0, overdue: 0, paid: 0 };
     const now = startOfDay(new Date());
     return expenses.reduce((acc, e) => {
       const due = toDate(e.dueDate);

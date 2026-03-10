@@ -95,7 +95,7 @@ export default function DashboardPage() {
 
 function RecentExpenses({ expenses, loading }: { expenses: any[] | null, loading: boolean }) {
   if (loading) return <Skeleton className="h-48 w-full" />;
-  if (!expenses?.length) return (
+  if (!expenses || expenses.length === 0) return (
     <div className="flex h-48 items-center justify-center rounded-md border-2 border-dashed">
       <p className="text-muted-foreground">Nenhuma despesa registrada ainda.</p>
     </div>

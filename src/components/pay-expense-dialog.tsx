@@ -55,7 +55,8 @@ export function PayExpenseDialog({ expense, open, onOpenChange, onSuccess }: Pro
   const [isSaving, setIsSaving] = useState(false);
 
   const accountsRef = firestore ? collection(firestore, 'bankAccounts') : null;
-  const { data: accounts = [] } = useCollection<any>(accountsRef);
+  const { data: accountsData } = useCollection<any>(accountsRef);
+  const accounts = accountsData || [];
   const activeAccounts = accounts.filter(a => a.active);
 
   const form = useForm<PayFormValues>({
