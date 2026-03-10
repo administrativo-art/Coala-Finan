@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -6,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { collection, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { bankAccountSchema, type BankAccountFormValues, type PaymentMethodValues } from '@/lib/schemas';
+import { bankAccountSchema, type BankAccountFormValues } from '@/lib/schemas';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,15 +18,22 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Plus, Pencil, Trash2, PlusCircle, X, Building2, CreditCard, Banknote, Landmark, Smartphone } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, PlusCircle, X, Building2, CreditCard, Banknote, Landmark, Smartphone, Wallet } from 'lucide-react';
 
 const PAYMENT_TYPES = [
-  { value: 'debit_card', label: 'Cartão de débito', icon: CreditCard },
-  { value: 'credit_card', label: 'Cartão de crédito', icon: CreditCard },
-  { value: 'pix', label: 'PIX', icon: Smartphone },
-  { value: 'transfer', label: 'Transferência', icon: Landmark },
-  { value: 'cash', label: 'Dinheiro', icon: Banknote },
+  { value: 'debit_card', label: 'Cartão de débito', icon: CreditCard, color: 'text-emerald-400' },
+  { value: 'credit_card', label: 'Cartão de crédito', icon: CreditCard, color: 'text-sky-400' },
+  { value: 'pix', label: 'PIX', icon: Smartphone, color: 'text-teal-400' },
+  { value: 'transfer', label: 'Transferência', icon: Landmark, color: 'text-violet-400' },
+  { value: 'cash', label: 'Dinheiro', icon: Banknote, color: 'text-amber-400' },
 ] as const;
+
+function PaymentMethodIcon({ type }: { type: string }) {
+  const typeInfo = PAYMENT_TYPES.find(t => t.value === type);
+  const Icon = typeInfo?.icon || Wallet;
+  const color = typeInfo?.color || 'text-muted-foreground';
+  return <Icon className={`h-3.5 w-3.5 ${color}`} />;
+}
 
 export default function AccountsPage() {
   const firestore = useFirestore();
@@ -64,7 +72,7 @@ export default function AccountsPage() {
       agency: '',
       accountNumber: '',
       active: true,
-      paymentMethods: [{ id: crypto.randomUUID(), type: 'pix', label: 'PIX Principal' }],
+      paymentMethods: [{ id: crypto.randomUUID(), type: 'pix', label: 'PIX principal' }],
     });
     setDialogOpen(true);
   }
@@ -143,48 +151,57 @@ export default function AccountsPage() {
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-3">
           {accounts.map((account: any) => (
-            <Card key={account.id} className={!account.active ? 'opacity-60 grayscale' : 'hover:shadow-xl transition-shadow'}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-xl font-headline">{account.name}</CardTitle>
-                    <CardDescription className="flex gap-2 text-xs">
+            <Card key={account.id} className={`${!account.active ? 'opacity-60 grayscale' : ''} border-border/50 bg-card/50 shadow-sm backdrop-blur transition-all hover:bg-card/80`}>
+              <CardContent className="flex flex-col sm:flex-row sm:items-start gap-4 p-5">
+                {/* Coluna esquerda — nome + agência/cc + status */}
+                <div className="min-w-[220px]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-base truncate max-w-[120px]">{account.name}</h3>
+                    <div className="flex shrink-0">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(account)} className="h-7 w-7">
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(account)} className="h-7 w-7 text-rose-500 hover:text-rose-600">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  {(account.agency || account.accountNumber) && (
+                    <div className="flex gap-3 text-xs text-muted-foreground mb-3">
                       {account.agency && <span>Ag: {account.agency}</span>}
                       {account.accountNumber && <span>CC: {account.accountNumber}</span>}
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(account)} className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(account)} className="h-8 w-8 text-rose-500 hover:text-rose-600">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {account.paymentMethods.map((pm: any) => {
-                    const typeInfo = PAYMENT_TYPES.find(t => t.value === pm.type);
-                    const Icon = typeInfo?.icon || CreditCard;
-                    return (
-                      <Badge key={pm.id} variant="secondary" className="flex items-center gap-1.5 py-1">
-                        <Icon className="h-3 w-3" />
-                        {pm.label}
-                      </Badge>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <Badge variant={account.active ? 'default' : 'outline'}>
+                    </div>
+                  )}
+                  <Badge variant={account.active ? 'default' : 'secondary'} className="text-[10px] uppercase tracking-wider">
                     {account.active ? 'Ativa' : 'Inativa'}
                   </Badge>
-                  <span className="text-[10px] text-muted-foreground">
-                    {account.paymentMethods.length} formas de pagamento
-                  </span>
+                </div>
+
+                {/* Divisor vertical */}
+                <div className="hidden sm:block w-px self-stretch bg-border/20" />
+
+                {/* Coluna direita — formas de pagamento em linha */}
+                <div className="flex flex-1 flex-wrap gap-2 items-center">
+                  {account.paymentMethods.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic">Nenhuma forma de pagamento cadastrada.</p>
+                  ) : (
+                    account.paymentMethods.map((pm: any) => (
+                      <div key={pm.id}
+                        className="flex items-center gap-1.5 rounded-full border border-border/30 bg-white/5 px-3 py-1.5 text-xs shadow-sm transition-colors hover:border-border/50"
+                      >
+                        <PaymentMethodIcon type={pm.type} />
+                        <span className="font-medium">{pm.label}</span>
+                        {pm.lastDigits && (
+                          <span className="text-muted-foreground">•••• {pm.lastDigits}</span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  <p className="w-full text-[10px] text-muted-foreground mt-1 opacity-60">
+                    {account.paymentMethods.length} forma{account.paymentMethods.length !== 1 ? 's' : ''} de pagamento disponível
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -275,59 +292,134 @@ export default function AccountsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {fields.map((field, index) => (
-                    <Card key={field.id} className="relative bg-muted/30 border-primary/10">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-2 h-7 w-7 text-rose-500 hover:bg-rose-50"
-                        onClick={() => remove(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                      <CardContent className="pt-6 grid gap-4 sm:grid-cols-2">
-                        <FormField
-                          control={form.control}
-                          name={`paymentMethods.${index}.type`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs">Tipo</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                  {fields.map((field, index) => {
+                    const type = form.watch(`paymentMethods.${index}.type`);
+                    return (
+                      <Card key={field.id} className="relative bg-muted/30 border-primary/10">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-2 h-7 w-7 text-rose-500 hover:bg-rose-50"
+                          onClick={() => remove(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <CardContent className="pt-6 grid gap-4 sm:grid-cols-2">
+                          <FormField
+                            control={form.control}
+                            name={`paymentMethods.${index}.type`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Tipo</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="h-9">
+                                      <SelectValue placeholder="Selecione" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {PAYMENT_TYPES.map(type => (
+                                      <SelectItem key={type.value} value={type.value}>
+                                        <div className="flex items-center gap-2">
+                                          <type.icon className="h-4 w-4" />
+                                          {type.label}
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`paymentMethods.${index}.label`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs">Rótulo / nome</FormLabel>
                                 <FormControl>
-                                  <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Selecione" />
-                                  </SelectTrigger>
+                                  <Input className="h-9" placeholder="Ex: Visa Gold, PIX CNPJ" {...field} />
                                 </FormControl>
-                                <SelectContent>
-                                  {PAYMENT_TYPES.map(type => (
-                                    <SelectItem key={type.value} value={type.value}>
-                                      <div className="flex items-center gap-2">
-                                        <type.icon className="h-4 w-4" />
-                                        {type.label}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
+                              </FormItem>
+                            )}
+                          />
+
+                          {(type === 'debit_card' || type === 'credit_card') && (
+                            <div className="sm:col-span-2 grid gap-4 sm:grid-cols-3">
+                              <FormField
+                                control={form.control}
+                                name={`paymentMethods.${index}.cardNumber`}
+                                render={({ field }) => (
+                                  <FormItem className="sm:col-span-2">
+                                    <FormLabel className="text-xs">Número do cartão (opcional)</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        className="h-9 font-mono tracking-widest"
+                                        placeholder="0000 0000 0000 0000"
+                                        maxLength={19}
+                                        {...field}
+                                        onChange={e => {
+                                          const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+                                          const masked = raw.replace(/(.{4})/g, '$1 ').trim();
+                                          field.onChange(masked);
+                                          if (raw.length >= 4) {
+                                            form.setValue(`paymentMethods.${index}.lastDigits`, raw.slice(-4));
+                                          }
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormDescription className="text-[10px]">Preencha para atualizar os dígitos finais automaticamente.</FormDescription>
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`paymentMethods.${index}.lastDigits`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-xs">Dígitos finais</FormLabel>
+                                    <FormControl>
+                                      <Input className="h-9" placeholder="1234" maxLength={4} {...field} />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                              {type === 'credit_card' && (
+                                <FormField
+                                  control={form.control}
+                                  name={`paymentMethods.${index}.limit`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="text-xs">Limite (R$)</FormLabel>
+                                      <FormControl>
+                                        <Input className="h-9" type="number" placeholder="5000" {...field} />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+                            </div>
                           )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`paymentMethods.${index}.label`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-xs">Rótulo / nome</FormLabel>
-                              <FormControl>
-                                <Input className="h-9" placeholder="Ex: Visa Gold, PIX CNPJ" {...field} />
-                              </FormControl>
-                            </FormItem>
+
+                          {type === 'pix' && (
+                            <FormField
+                              control={form.control}
+                              name={`paymentMethods.${index}.pixKey`}
+                              render={({ field }) => (
+                                <FormItem className="sm:col-span-2">
+                                  <FormLabel className="text-xs">Chave PIX</FormLabel>
+                                  <FormControl>
+                                    <Input className="h-9" placeholder="E-mail, CPF, CNPJ ou chave aleatória" {...field} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
                           )}
-                        />
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                   {form.formState.errors.paymentMethods && (
                     <p className="text-sm font-medium text-destructive">{form.formState.errors.paymentMethods.message}</p>
                   )}

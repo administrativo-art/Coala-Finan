@@ -11,6 +11,7 @@ export type PaymentMethod = {
   type: PaymentMethodType;
   label: string;
   lastDigits?: string;
+  cardNumber?: string;
   limit?: number;
   pixKey?: string;
 };

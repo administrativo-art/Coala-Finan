@@ -176,6 +176,7 @@ export const paymentMethodSchema = z.object({
   type: z.enum(['debit_card', 'credit_card', 'pix', 'transfer', 'cash']),
   label: z.string().min(1, 'Rótulo é obrigatório.'),
   lastDigits: z.string().max(4).optional(),
+  cardNumber: z.string().optional(),
   limit: z.coerce.number().optional(),
   pixKey: z.string().optional(),
 });
