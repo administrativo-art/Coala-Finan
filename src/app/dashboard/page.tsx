@@ -5,7 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CalendarClock, CircleDollarSign, LineChart, Wallet } from 'lucide-react';
 import { useDashboardIndicators } from '@/hooks/use-dashboard-indicators';
 import { cn } from '@/lib/utils';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useCollection } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 function formatCurrency(value: number | null) {
   if (value === null) return '—';
@@ -112,9 +113,17 @@ function RecentExpenses({ expenses, loading }: { expenses: any[] | null, loading
     <div className="space-y-3">
       {recent.map(exp => (
         <div key={exp.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
-          <div>
+          <div className="space-y-1">
             <p className="font-medium">{exp.description}</p>
-            <p className="text-xs text-muted-foreground">{exp.accountPlanName || exp.accountPlan}</p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{exp.accountPlanName || exp.accountPlan}</span>
+              {exp.supplier && (
+                <>
+                  <span className="text-muted-foreground/50">•</span>
+                  <span className="font-medium text-primary/80">{exp.supplier}</span>
+                </>
+              )}
+            </div>
           </div>
           <div className="text-right">
             <p className="font-semibold text-rose-500">

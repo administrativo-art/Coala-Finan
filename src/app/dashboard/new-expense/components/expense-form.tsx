@@ -35,6 +35,7 @@ import { CalendarIcon, PlusCircle, Trash2, Loader2, Check, ChevronRight, Chevron
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { format, addMonths, addWeeks } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
@@ -215,7 +216,6 @@ export default function ExpenseForm() {
           }];
 
     try {
-      // Find account plan name
       const accountPlanObj = accountPlans?.find(ap => ap.id === data.accountPlan);
       const accountPlanName = accountPlanObj ? accountPlanObj.name : data.accountPlan;
 
@@ -473,7 +473,7 @@ export default function ExpenseForm() {
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                {field.value ? format(field.value, 'PPP') : <span>Escolha uma data</span>}
+                                {field.value ? format(field.value, 'PPP', { locale: ptBR }) : <span>Escolha uma data</span>}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
@@ -497,7 +497,7 @@ export default function ExpenseForm() {
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                  {field.value ? format(field.value, 'PPP') : <span>Escolha uma data</span>}
+                                  {field.value ? format(field.value, 'PPP', { locale: ptBR }) : <span>Escolha uma data</span>}
                                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button>
                               </FormControl>
@@ -592,7 +592,7 @@ export default function ExpenseForm() {
                                       <PopoverTrigger asChild>
                                         <FormControl>
                                           <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                            {field.value ? format(field.value, 'PPP') : <span>Escolha a data</span>}
+                                            {field.value ? format(field.value, 'PPP', { locale: ptBR }) : <span>Escolha a data</span>}
                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                         </FormControl>
@@ -681,7 +681,7 @@ export default function ExpenseForm() {
                                               <PopoverTrigger asChild>
                                                 <FormControl>
                                                   <Button variant="outline" className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                    {field.value ? format(field.value, 'PPP') : <span>Data</span>}
+                                                    {field.value ? format(field.value, 'PPP', { locale: ptBR }) : <span>Data</span>}
                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                   </Button>
                                                 </FormControl>
