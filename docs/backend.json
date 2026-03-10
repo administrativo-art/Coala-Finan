@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "user": {
@@ -188,6 +189,23 @@
           }
         }
       }
+    },
+    "transaction": {
+      "title": "Transação",
+      "description": "Um registro de movimentação financeira (receita, transferência, ajuste).",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "direction": { "type": "string", "enum": ["in", "out"] },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "paymentMethodId": { "type": "string" },
+        "paymentMethodLabel": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "createdBy": { "type": "string" }
+      }
     }
   },
   "auth": {
@@ -237,6 +255,12 @@
         "$ref": "#/entities/payment"
       },
       "description": "Registros de pagamentos efetuados."
+    },
+    "/transactions/{transactionId}": {
+      "schema": {
+        "$ref": "#/entities/transaction"
+      },
+      "description": "Movimentações financeiras diversas."
     }
   }
 }

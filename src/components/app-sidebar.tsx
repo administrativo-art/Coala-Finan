@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -37,6 +38,7 @@ const mainNavItems = [
 const financialNavItems = [
   { href: '/dashboard/expenses', icon: Receipt, label: 'Painel de despesas' },
   { href: '/dashboard/financial-flow', icon: BarChart2, label: 'Fluxo financeiro' },
+  { href: '/dashboard/cash-flow', icon: ArrowLeftRight, label: 'Fluxo de caixa' },
 ];
 
 const systemNavItems = [
