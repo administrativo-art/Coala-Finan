@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { LogOut, User as UserIcon, LifeBuoy, Loader2 } from 'lucide-react';
 import { OfflineBanner } from '@/components/offline-banner';
 import Link from 'next/link';
@@ -32,7 +32,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { data: userProfile, loading: profileLoading } = useDoc(userDocRef);
 
   useEffect(() => {
-    // Só redirecionamos para a home se o loading terminou E não há usuário.
     if (!userLoading && !user) {
       router.replace('/');
     }
@@ -54,7 +53,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .join('');
   };
 
-  // Se estiver carregando o estado de autenticação, mostramos o loader centralizado.
   if (userLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -63,8 +61,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  // Se não houver usuário (após o loading), retornamos null.
-  // O useEffect acima cuidará do redirecionamento.
   if (!user) {
     return null;
   }
@@ -74,7 +70,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <AppSidebar />
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/10 bg-transparent px-4 backdrop-blur-lg sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <SidebarTrigger />
           <div className="ml-auto flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
