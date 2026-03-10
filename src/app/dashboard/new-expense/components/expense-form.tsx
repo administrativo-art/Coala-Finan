@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, PlusCircle, Trash2 } from 'lucide-react';
+import { CalendarIcon, PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Calendar } from '@/components/ui/calendar';
 import { format, addMonths, addWeeks } from 'date-fns';
@@ -43,8 +43,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { useCollection, useFirestore } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { useCollection, useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -70,6 +70,8 @@ const flattenTree = (nodes: any[], level = 0): any[] =>
 export default function ExpenseForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user } = useUser();
+  const [isSaving, setIsSaving] = useState(false);
 
   const accountPlansCollection = useMemo(() => (firestore ? collection(firestore, 'accountPlans') : null), [firestore]);
   const { data: accountPlans, loading: accountPlansLoading } = useCollection(accountPlansCollection);
@@ -113,15 +115,6 @@ export default function ExpenseForm() {
 
   const [equalInstallments, setEqualInstallments] = useState<CalculatedInstallment[]>([]);
 
-  function onSubmit(data: ExpenseFormValues) {
-    console.log(data);
-    toast({
-      title: 'Despesa Lançada!',
-      description: 'A provisão foi criada com sucesso no sistema.',
-    });
-    form.reset();
-  }
-
   const isApportioned = form.watch('isApportioned');
   const paymentMethod = form.watch('paymentMethod');
   const installmentType = form.watch('installmentType');
@@ -134,34 +127,104 @@ export default function ExpenseForm() {
   const variedInstallmentsTotal = variedInstallments?.reduce((sum, item) => sum + (item.value || 0), 0) || 0;
   const variedInstallmentsDifference = (totalValue || 0) - variedInstallmentsTotal;
 
+  async function onSubmit(data: ExpenseFormValues) {
+    if (!firestore || !user) return;
+    setIsSaving(true);
+
+    const installmentsToSave = 
+      data.paymentMethod === 'installments' && data.installmentType === 'equal'
+        ? equalInstallments.map(i => ({
+            number: i.number,
+            dueDate: Timestamp.fromDate(i.dueDate),
+            value: i.value,
+            status: 'pending'
+          }))
+        : data.paymentMethod === 'installments' && data.installmentType === 'varied'
+        ? data.variedInstallments!.map((i, idx) => ({
+            number: idx + 1,
+            dueDate: Timestamp.fromDate(i.dueDate),
+            value: i.value,
+            status: 'pending'
+          }))
+        : [{
+            number: 1,
+            dueDate: Timestamp.fromDate(data.dueDate!),
+            value: data.totalValue,
+            status: 'pending'
+          }];
+
+    try {
+      await addDoc(collection(firestore, 'expenses'), {
+        accountPlan: data.accountPlan,
+        description: data.description,
+        supplier: data.supplier ?? '',
+        notes: data.notes ?? '',
+        totalValue: data.totalValue,
+        competenceDate: Timestamp.fromDate(data.competenceDate),
+        dueDate: data.paymentMethod === 'installments'
+          ? Timestamp.fromDate(data.installmentType === 'equal' ? data.firstInstallmentDueDate! : data.variedInstallments![0].dueDate)
+          : Timestamp.fromDate(data.dueDate!),
+        paymentMethod: data.paymentMethod,
+        isApportioned: data.isApportioned,
+        resultCenter: data.isApportioned ? null : data.resultCenter,
+        apportionments: data.isApportioned ? data.apportionments : null,
+        installments: installmentsToSave,
+        status: 'pending',
+        createdAt: Timestamp.now(),
+        createdBy: user.uid,
+      });
+
+      toast({
+        title: 'Despesa Lançada!',
+        description: 'A provisão foi criada com sucesso no sistema.',
+      });
+      form.reset();
+      setEqualInstallments([]);
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar a despesa no banco de dados.',
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   useEffect(() => {
-    const qty = form.getValues('installments');
-    const currentFields = form.getValues('variedInstallments') || [];
-
-    if (paymentMethod === 'installments' && installmentType === 'varied' && qty && qty >= 2) {
-      if (qty > currentFields.length) {
-        const toAdd = qty - currentFields.length;
-        const baseValue = (totalValue || 0) / qty;
+    if (paymentMethod === 'installments' && installmentType === 'varied' && installmentsQty && installmentsQty >= 2) {
+      const currentFields = variedInstallments || [];
+      if (installmentsQty > currentFields.length) {
+        const toAdd = installmentsQty - currentFields.length;
+        const baseValue = (totalValue || 0) / installmentsQty;
         for (let i = 0; i < toAdd; i++) {
-          appendInstallment({ dueDate: new Date(), value: baseValue > 0 ? baseValue : 0 }, { shouldFocus: false });
+          appendInstallment({ dueDate: new Date(), value: baseValue > 0 ? parseFloat(baseValue.toFixed(2)) : 0 }, { shouldFocus: false });
         }
-      } else if (qty < currentFields.length) {
-        const toRemove = currentFields.length - qty;
+      } else if (installmentsQty < currentFields.length) {
+        const toRemove = currentFields.length - installmentsQty;
         for (let i = 0; i < toRemove; i++) {
           removeInstallment(currentFields.length - 1 - i);
         }
       }
     }
-  }, [installmentsQty, installmentType, paymentMethod, totalValue, appendInstallment, removeInstallment, form]);
+  }, [installmentsQty, installmentType, paymentMethod, totalValue, appendInstallment, removeInstallment, variedInstallments]);
   
   useEffect(() => {
     if(paymentMethod === 'single') {
         form.setValue('installments', undefined);
         form.setValue('installmentType', undefined);
+        form.setValue('variedInstallments', []);
     }
   }, [paymentMethod, form]);
 
+  useEffect(() => {
+    if (installmentType === 'equal') {
+      form.setValue('variedInstallments', []);
+    } else if (installmentType === 'varied') {
+      setEqualInstallments([]);
+    }
+  }, [installmentType, form]);
 
   useEffect(() => {
     if (
@@ -298,29 +361,31 @@ export default function ExpenseForm() {
                   </FormItem>
                 )}
               />
-               <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col pt-2">
-                    <FormLabel>Vencimento Inicial</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                            {field.value ? format(field.value, 'PPP') : <span>Escolha uma data</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {paymentMethod === 'single' && (
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col pt-2">
+                      <FormLabel>Vencimento</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                              {field.value ? format(field.value, 'PPP') : <span>Escolha uma data</span>}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </CardContent>
           </Card>
           
@@ -579,6 +644,32 @@ export default function ExpenseForm() {
                   />
                 ) : (
                   <div className="space-y-4">
+                    {(() => {
+                      const total = (form.watch('apportionments') || [])
+                        .reduce((sum, a) => sum + (a.percentage || 0), 0);
+                      const diff = 100 - total;
+                      const isValid = Math.abs(diff) < 0.001;
+                      return (
+                        <div className={cn(
+                          "flex items-center justify-between rounded-md border p-3 text-sm",
+                          isValid ? "border-emerald-500/50 bg-emerald-500/10" : "border-amber-500/50 bg-amber-500/10"
+                        )}>
+                          <span className="text-muted-foreground">Total alocado:</span>
+                          <div className="flex items-center gap-2">
+                            <span className={cn("font-bold", isValid ? "text-emerald-500" : "text-amber-500")}>
+                              {total.toFixed(1)}%
+                            </span>
+                            {!isValid && (
+                              <span className="text-xs text-amber-500">
+                                ({diff > 0 ? `faltam ${diff.toFixed(1)}%` : `excesso de ${Math.abs(diff).toFixed(1)}%`})
+                              </span>
+                            )}
+                            {isValid && <span className="text-xs text-emerald-500">✓ 100%</span>}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {apportionmentFields.map((field, index) => (
                       <div key={field.id} className="flex items-end gap-2">
                          <FormField
@@ -665,8 +756,11 @@ export default function ExpenseForm() {
           </Card>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => form.reset()}>Cancelar</Button>
-            <Button type="submit">Lançar Despesa</Button>
+            <Button type="button" variant="outline" onClick={() => form.reset()} disabled={isSaving}>Cancelar</Button>
+            <Button type="submit" disabled={isSaving || !form.formState.isValid}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Lançar Despesa
+            </Button>
           </div>
         </div>
 

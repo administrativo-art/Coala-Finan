@@ -57,7 +57,10 @@
           "description": "Uma breve descrição da conta."
         },
         "parentId": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "O ID da conta pai. Nulo para contas de nível raiz."
         }
       },
@@ -82,6 +85,47 @@
       "required": [
         "name"
       ]
+    },
+    "expense": {
+      "title": "Despesa",
+      "description": "Um lançamento de despesa ou provisão.",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "totalValue": {
+          "type": "number"
+        },
+        "accountPlan": {
+          "type": "string"
+        },
+        "competenceDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": [
+            "single",
+            "installments"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "paid"
+          ]
+        },
+        "createdBy": {
+          "type": "string"
+        }
+      }
     }
   },
   "auth": {
@@ -113,6 +157,12 @@
         "$ref": "#/entities/resultCenter"
       },
       "description": "Result center definitions."
+    },
+    "/expenses/{expenseId}": {
+      "schema": {
+        "$ref": "#/entities/expense"
+      },
+      "description": "Registros de despesas e provisões."
     }
   }
 }

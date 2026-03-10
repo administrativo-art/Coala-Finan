@@ -11,9 +11,7 @@ export const expenseFormSchema = z
     competenceDate: z.date({
       required_error: 'Data de competência é obrigatória.',
     }),
-    dueDate: z.date({
-      required_error: 'Data de vencimento é obrigatória.',
-    }),
+    dueDate: z.date().optional(),
     isApportioned: z.boolean().default(false),
     resultCenter: z.string().optional(),
     apportionments: z
@@ -49,6 +47,18 @@ export const expenseFormSchema = z
     supplier: z.string().optional(),
     notes: z.string().optional(),
   })
+  .refine(
+    (data) => {
+      if (data.paymentMethod === 'single') {
+        return !!data.dueDate;
+      }
+      return true;
+    },
+    {
+      message: 'Data de vencimento é obrigatória para pagamento à vista.',
+      path: ['dueDate'],
+    }
+  )
   .refine(
     (data) => {
       if (data.isApportioned) {
