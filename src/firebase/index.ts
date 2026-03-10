@@ -4,7 +4,8 @@ import {
   initializeFirestore, 
   Firestore, 
   persistentLocalCache, 
-  persistentMultipleTabManager 
+  persistentMultipleTabManager,
+  getFirestore
 } from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
@@ -30,13 +31,20 @@ export function initializeFirebase(): FirebaseInstances {
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
   
-  // Inicializa o Firestore com cache persistente no IndexedDB
-  // Isso permite que o app funcione offline e carregue dados instantaneamente do cache
-  const firestore = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
-  });
+  let firestore: Firestore;
+  
+  try {
+    // Inicializa o Firestore com cache persistente no IndexedDB
+    // Isso permite que o app funcione offline e carregue dados instantaneamente do cache
+    firestore = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch (e) {
+    // Caso já tenha sido inicializado (comum no Hot Reload do Next.js)
+    firestore = getFirestore(app);
+  }
 
   firebaseInstances = { app, auth, firestore };
   return firebaseInstances;

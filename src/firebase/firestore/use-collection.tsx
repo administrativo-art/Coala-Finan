@@ -31,17 +31,24 @@ export function useCollection<T = DocumentData>(
       q,
       { includeMetadataChanges: true },
       (snapshot) => {
-        const docs = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        const docs = snapshot.docs.map((doc) => ({ ...doc.data() as T, id: doc.id }));
         setData(docs);
         setLoading(false);
         setError(null);
         setOffline(snapshot.metadata.fromCache);
       },
       (err) => {
-        // Se o erro for por estar offline, tratamos como um estado e não como erro crítico
-        if (err.code === 'unavailable' || err.message.toLowerCase().includes('offline')) {
+        // Trata erros de conexão/offline como estado e não como falha crítica
+        const isOfflineError = 
+          err.code === 'unavailable' || 
+          err.code === 'unknown' ||
+          err.message.toLowerCase().includes('offline') ||
+          err.message.toLowerCase().includes('network');
+
+        if (isOfflineError) {
           setOffline(true);
           setLoading(false);
+          // Não limpamos os dados existentes para permitir leitura do cache
           return;
         }
 
@@ -54,6 +61,7 @@ export function useCollection<T = DocumentData>(
           path: path,
           operation: 'list',
         });
+        
         errorEmitter.emit('permission-error', permissionError);
         setError(permissionError);
         setLoading(false);

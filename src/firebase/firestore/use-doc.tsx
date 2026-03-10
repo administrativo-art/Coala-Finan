@@ -31,7 +31,7 @@ export function useDoc<T = DocumentData>(
       { includeMetadataChanges: true },
       (snapshot) => {
         if (snapshot.exists()) {
-          setData({ ...snapshot.data(), id: snapshot.id });
+          setData({ ...snapshot.data() as T, id: snapshot.id });
         } else {
           setData(null);
         }
@@ -40,8 +40,14 @@ export function useDoc<T = DocumentData>(
         setOffline(snapshot.metadata.fromCache);
       },
       (err) => {
-        // Se o erro for por estar offline, tratamos como um estado e não como erro crítico
-        if (err.code === 'unavailable' || err.message.toLowerCase().includes('offline')) {
+        // Trata erros de conexão/offline como estado e não como falha crítica
+        const isOfflineError = 
+          err.code === 'unavailable' || 
+          err.code === 'unknown' ||
+          err.message.toLowerCase().includes('offline') ||
+          err.message.toLowerCase().includes('network');
+
+        if (isOfflineError) {
           setOffline(true);
           setLoading(false);
           return;
@@ -51,6 +57,7 @@ export function useDoc<T = DocumentData>(
           path: docRef.path,
           operation: 'get',
         });
+        
         errorEmitter.emit('permission-error', permissionError);
         setError(permissionError);
         setLoading(false);
