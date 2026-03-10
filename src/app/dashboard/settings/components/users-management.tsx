@@ -60,9 +60,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, MoreHorizontal, UserPlus } from 'lucide-react';
+import { Loader2, MoreHorizontal, UserPlus, AlertCircle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -71,6 +72,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createUserAction } from '../actions';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type UserProfile = UserProfileData & { id: string };
 interface UserProfileData {
@@ -222,7 +224,7 @@ export default function UsersManagement() {
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.profile}</TableCell>
+                  <TableCell>{user.profile || <span className="text-muted-foreground italic">Nenhum</span>}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -259,11 +261,11 @@ export default function UsersManagement() {
       </CardContent>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} Usuário</DialogTitle>
             <DialogDescription>
-              {editingUser ? 'Atualize o nome e o perfil de acesso do usuário.' : 'Preencha os dados para criar um novo usuário com acesso por e-mail e senha.'}
+              {editingUser ? 'Atualize os dados do usuário no sistema.' : 'Crie um novo acesso. A senha será usada para o primeiro login.'}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -288,7 +290,7 @@ export default function UsersManagement() {
                   <FormItem>
                     <FormLabel>Nome</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome completo do usuário" {...field} />
+                      <Input placeholder="Nome completo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -302,9 +304,9 @@ export default function UsersManagement() {
                     <FormItem>
                       <FormLabel>Senha Inicial</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Mínimo de 6 caracteres" {...field} value={field.value ?? ''} />
+                        <Input type="password" placeholder="Mínimo 6 caracteres" {...field} value={field.value || ''} />
                       </FormControl>
-                      <FormDescription>Esta será a senha para o primeiro acesso.</FormDescription>
+                      <FormDescription>Essa senha será exigida no primeiro acesso.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -315,7 +317,7 @@ export default function UsersManagement() {
                 name="profile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Perfil de Acesso</FormLabel>
+                    <FormLabel>Perfil de Acesso (Opcional)</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || undefined}
@@ -337,7 +339,16 @@ export default function UsersManagement() {
                   </FormItem>
                 )}
               />
-              <DialogFooter>
+
+              <Alert variant="default" className="bg-primary/5 border-primary/20">
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <AlertTitle className="text-xs font-semibold">Aviso de Configuração</AlertTitle>
+                <AlertDescription className="text-[10px] leading-tight text-muted-foreground">
+                  A criação de usuários requer as chaves ADMIN configuradas no arquivo .env para funcionar corretamente.
+                </AlertDescription>
+              </Alert>
+
+              <DialogFooter className="pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -360,13 +371,14 @@ export default function UsersManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente o
-              perfil do usuário do banco de dados. O acesso no Firebase Auth não será removido automaticamente.
+              Esta ação excluirá o perfil do usuário do banco de dados. O acesso no Firebase Auth não será removido automaticamente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

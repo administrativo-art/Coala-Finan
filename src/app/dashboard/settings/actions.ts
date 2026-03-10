@@ -7,10 +7,18 @@ import { getFirestore } from 'firebase-admin/firestore';
 function getAdminApp() {
   if (getApps().length > 0) return getApps()[0];
 
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  if (!clientEmail || !privateKey || !projectId) {
+    throw new Error('CONFIG_MISSING');
+  }
+
   const serviceAccount: ServiceAccount = {
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    projectId,
+    clientEmail,
+    privateKey: privateKey.replace(/\\n/g, '\n'),
   };
 
   return initializeApp({
@@ -25,7 +33,19 @@ export async function createUserAction(data: {
   profile: string;
 }): Promise<{ success: true } | { success: false; error: string }> {
   try {
-    const app = getAdminApp();
+    let app;
+    try {
+      app = getAdminApp();
+    } catch (e: any) {
+      if (e.message === 'CONFIG_MISSING') {
+        return { 
+          success: false, 
+          error: 'O sistema ainda não foi configurado com a chave privada do Firebase Admin. Siga as instruções para configurar as variáveis de ambiente.' 
+        };
+      }
+      throw e;
+    }
+
     const adminAuth = getAuth(app);
     const adminDb = getFirestore(app);
 
@@ -41,6 +61,7 @@ export async function createUserAction(data: {
       name: data.name,
       email: data.email,
       profile: data.profile,
+      createdAt: new Date().toISOString(),
     });
 
     return { success: true };
