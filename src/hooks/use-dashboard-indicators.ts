@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
-import { addDays, isPast, isBefore, isAfter, startOfDay, endOfDay } from 'date-fns';
+import { addDays, startOfDay, endOfDay } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 
 function toDate(ts: Timestamp | undefined): Date | null {
@@ -20,15 +20,17 @@ export function useDashboardIndicators() {
   const transactionsRef = useMemo(() => (firestore ? collection(firestore, 'transactions') : null), [firestore]);
   const paymentsRef = useMemo(() => (firestore ? collection(firestore, 'payments') : null), [firestore]);
 
-  const { data: expenses = [], loading: le } = useCollection<any>(expensesRef);
-  const { data: transactions = [], loading: lt } = useCollection<any>(transactionsRef);
-  const { data: payments = [], loading: lp } = useCollection<any>(paymentsRef);
+  const { data: expensesData, loading: le } = useCollection<any>(expensesRef);
+  const { data: transactionsData, loading: lt } = useCollection<any>(transactionsRef);
+  const { data: paymentsData, loading: lp } = useCollection<any>(paymentsRef);
+
+  const expenses = expensesData || [];
+  const transactions = transactionsData || [];
+  const payments = paymentsData || [];
 
   const loading = le || lt || lp;
 
   const indicators = useMemo(() => {
-    if (!expenses && !transactions && !payments) return null;
-
     const now = startOfDay(new Date());
     const in30Days = endOfDay(addDays(now, 30));
 
@@ -55,11 +57,10 @@ export function useDashboardIndicators() {
     const totalPago = payments
       .reduce((sum, p) => sum + (p.totalPaid ?? 0), 0);
 
-    // DRE = Receitas - Despesas Pagas
+    // DRE = Receitas - Despesas pagas
     const dre = totalReceitas - totalPago;
 
-    // Caixa = Receitas - Pagamentos Efetuados + Ajustes de Entrada - Ajustes de Saída
-    // Nota: Transferências internas (in/out) se anulam no caixa total.
+    // Caixa = Receitas - Pagamentos efetuados + Ajustes de entrada - Ajustes de saída
     const totalSaidasTx = transactions
       .filter((t: any) => t.direction === 'out' && t.type !== 'transfer_out')
       .reduce((sum, t) => sum + (t.amount ?? 0), 0);

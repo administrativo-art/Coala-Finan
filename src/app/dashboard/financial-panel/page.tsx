@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import {
-  BarChart, Bar, Line, PieChart, Pie, Cell,
+  BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import {
@@ -61,9 +61,13 @@ export default function FinancialPanelPage() {
   const transactionsRef = useMemo(() => (firestore ? collection(firestore, 'transactions') : null), [firestore]);
   const paymentsRef = useMemo(() => (firestore ? collection(firestore, 'payments') : null), [firestore]);
 
-  const { data: expenses = [], loading: le } = useCollection<any>(expensesRef);
-  const { data: transactions = [], loading: lt } = useCollection<any>(transactionsRef);
-  const { data: payments = [], loading: lp } = useCollection<any>(paymentsRef);
+  const { data: expensesData, loading: le } = useCollection<any>(expensesRef);
+  const { data: transactionsData, loading: lt } = useCollection<any>(transactionsRef);
+  const { data: paymentsData, loading: lp } = useCollection<any>(paymentsRef);
+
+  const expenses = expensesData || [];
+  const transactions = transactionsData || [];
+  const payments = paymentsData || [];
 
   const loading = le || lt || lp;
 
@@ -147,12 +151,12 @@ export default function FinancialPanelPage() {
     provisionedExpenses.forEach(e => {
       if (e.isApportioned && e.apportionments?.length) {
         e.apportionments.forEach((ap: any) => {
-          const rc = ap.resultCenter ?? 'Sem centro de resultado';
+          const rc = ap.resultCenter || 'Sem centro de resultado';
           const val = (e.totalValue ?? 0) * (ap.percentage ?? 0) / 100;
           map[rc] = (map[rc] ?? 0) + val;
         });
       } else {
-        const rc = e.resultCenter ?? 'Sem centro de resultado';
+        const rc = e.resultCenter || 'Sem centro de resultado';
         map[rc] = (map[rc] ?? 0) + (e.totalValue ?? 0);
       }
     });
