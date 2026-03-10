@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -9,7 +10,7 @@ import {
   doc,
   setDoc,
 } from 'firebase/firestore';
-import { UserFormValues, userFormSchema } from '@/lib/schemas';
+import { userFormSchema, type UserFormValues } from '@/lib/schemas';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -63,7 +64,7 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Loader2, MoreHorizontal, UserPlus, AlertCircle } from 'lucide-react';
+import { Loader2, MoreHorizontal, UserPlus, ShieldCheck } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -120,13 +121,13 @@ export default function UsersManagement() {
     setIsSaving(true);
     try {
       if (editingUser) {
-        // Edit existing user in Firestore
+        // Editar usuário existente no Firestore
         const { password, ...updateData } = values;
         await setDoc(doc(firestore, 'users', editingUser.id), updateData, { merge: true });
         toast({ title: 'Usuário atualizado com sucesso!' });
         handleDialogClose();
       } else {
-        // Create new user using Server Action
+        // Criar novo usuário usando Server Action
         const result = await createUserAction({
           name: values.name,
           email: values.email,
@@ -340,11 +341,11 @@ export default function UsersManagement() {
                 )}
               />
 
-              <Alert variant="default" className="bg-primary/5 border-primary/20">
-                <AlertCircle className="h-4 w-4 text-primary" />
-                <AlertTitle className="text-xs font-semibold">Aviso de configuração</AlertTitle>
+              <Alert variant="default" className="bg-emerald-500/5 border-emerald-500/20">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                <AlertTitle className="text-xs font-semibold text-emerald-500">Autenticação segura via IAM</AlertTitle>
                 <AlertDescription className="text-[10px] leading-tight text-muted-foreground">
-                  A criação de usuários requer as chaves ADMIN configuradas no arquivo .env para funcionar corretamente.
+                  O sistema está configurado para usar a identidade do servidor (ADC). Certifique-se de que a conta de serviço tem as permissões necessárias no Console do Google Cloud.
                 </AlertDescription>
               </Alert>
 
