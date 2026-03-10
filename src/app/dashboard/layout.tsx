@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { LogOut, User as UserIcon, LifeBuoy, Loader2 } from 'lucide-react';
+import { OfflineBanner } from '@/components/offline-banner';
 import Link from 'next/link';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -114,6 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">{children}</main>
+        <OfflineBanner />
       </SidebarInset>
     </SidebarProvider>
   );

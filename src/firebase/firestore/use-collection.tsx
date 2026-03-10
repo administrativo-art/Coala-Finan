@@ -16,6 +16,7 @@ export function useCollection<T = DocumentData>(
   const [data, setData] = useState<(T & { id: string; })[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [offline, setOffline] = useState(false);
 
   useEffect(() => {
     if (!q) {
@@ -28,13 +29,22 @@ export function useCollection<T = DocumentData>(
 
     const unsubscribe = onSnapshot(
       q,
+      { includeMetadataChanges: true },
       (snapshot) => {
         const docs = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
         setData(docs);
         setLoading(false);
         setError(null);
+        setOffline(snapshot.metadata.fromCache);
       },
       (err) => {
+        // Se o erro for por estar offline, tratamos como um estado e não como erro crítico
+        if (err.code === 'unavailable' || err.message.toLowerCase().includes('offline')) {
+          setOffline(true);
+          setLoading(false);
+          return;
+        }
+
         let path = 'unknown collection path';
         if (q && 'path' in q && typeof q.path === 'string') {
             path = q.path;
@@ -54,5 +64,5 @@ export function useCollection<T = DocumentData>(
     return () => unsubscribe();
   }, [q]);
 
-  return { data, loading, error };
+  return { data, loading, error, offline };
 }

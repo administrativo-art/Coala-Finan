@@ -1,6 +1,11 @@
 import { initializeApp, getApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  Firestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from 'firebase/firestore';
 import { firebaseConfig } from './config';
 
 // Hooks and providers
@@ -24,8 +29,14 @@ export function initializeFirebase(): FirebaseInstances {
 
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  // Usa a instância (default) do Firestore para maior compatibilidade
-  const firestore = getFirestore(app);
+  
+  // Inicializa o Firestore com cache persistente no IndexedDB
+  // Isso permite que o app funcione offline e carregue dados instantaneamente do cache
+  const firestore = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
 
   firebaseInstances = { app, auth, firestore };
   return firebaseInstances;

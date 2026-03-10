@@ -15,6 +15,7 @@ export function useDoc<T = DocumentData>(
   const [data, setData] = useState<(T & { id: string; }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [offline, setOffline] = useState(false);
 
   useEffect(() => {
     if (!docRef) {
@@ -27,6 +28,7 @@ export function useDoc<T = DocumentData>(
 
     const unsubscribe = onSnapshot(
       docRef,
+      { includeMetadataChanges: true },
       (snapshot) => {
         if (snapshot.exists()) {
           setData({ ...snapshot.data(), id: snapshot.id });
@@ -35,8 +37,16 @@ export function useDoc<T = DocumentData>(
         }
         setLoading(false);
         setError(null);
+        setOffline(snapshot.metadata.fromCache);
       },
       (err) => {
+        // Se o erro for por estar offline, tratamos como um estado e não como erro crítico
+        if (err.code === 'unavailable' || err.message.toLowerCase().includes('offline')) {
+          setOffline(true);
+          setLoading(false);
+          return;
+        }
+
         const permissionError = new FirestorePermissionError({
           path: docRef.path,
           operation: 'get',
@@ -51,5 +61,5 @@ export function useDoc<T = DocumentData>(
     return () => unsubscribe();
   }, [docRef]);
 
-  return { data, loading, error };
+  return { data, loading, error, offline };
 }
