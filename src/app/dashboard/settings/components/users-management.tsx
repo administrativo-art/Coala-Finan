@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -71,8 +70,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { createUserAction } from '../actions';
 
-type UserProfile = UserFormValues & { id: string };
+type UserProfile = UserProfileData & { id: string };
+interface UserProfileData {
+  name: string;
+  email: string;
+  profile?: string;
+}
 
 export default function UsersManagement() {
   const { toast } = useToast();
@@ -99,7 +104,7 @@ export default function UsersManagement() {
 
   const handleDialogOpen = (user: UserProfile | null = null) => {
     setEditingUser(user);
-    form.reset(user || { name: '', email: '', profile: '', password: '' });
+    form.reset(user ? { name: user.name, email: user.email, profile: user.profile || '', password: '' } : { name: '', email: '', profile: '', password: '' });
     setIsFormOpen(true);
   };
 
@@ -113,20 +118,30 @@ export default function UsersManagement() {
     setIsSaving(true);
     try {
       if (editingUser) {
+        // Edit existing user in Firestore
         const { password, ...updateData } = values;
         await setDoc(doc(firestore, 'users', editingUser.id), updateData, { merge: true });
         toast({ title: 'Usuário atualizado com sucesso!' });
         handleDialogClose();
       } else {
-        // TODO: Implement server-side user creation (e.g., via a Cloud Function)
-        // This is because creating a user in Firebase Auth and then creating the
-        // Firestore doc with the correct UID should be a secure, atomic operation.
-        console.log('Attempted to create user:', values);
-        toast({
-          variant: 'destructive',
-          title: 'Função em desenvolvimento',
-          description: 'A criação de novos usuários pelo painel ainda não está implementada.',
+        // Create new user using Server Action
+        const result = await createUserAction({
+          name: values.name,
+          email: values.email,
+          password: values.password || '',
+          profile: values.profile || '',
         });
+
+        if (result.success) {
+          toast({ title: 'Usuário criado com sucesso!' });
+          handleDialogClose();
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Erro ao criar usuário',
+            description: result.error,
+          });
+        }
       }
     } catch (error) {
       console.error(error);
@@ -155,8 +170,6 @@ export default function UsersManagement() {
 
     try {
       await deleteDoc(doc(firestore, 'users', deletingId));
-      // Note: This does not delete the user from Firebase Auth.
-      // It only removes their profile from the database.
       toast({ title: 'Usuário excluído com sucesso!' });
     } catch (error) {
       toast({
@@ -222,7 +235,7 @@ export default function UsersManagement() {
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          onClick={() => handleDialogOpen(user)}
+                          onClick={() => handleDialogOpen(user as UserProfile)}
                         >
                           Editar
                         </DropdownMenuItem>
@@ -250,7 +263,7 @@ export default function UsersManagement() {
           <DialogHeader>
             <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} Usuário</DialogTitle>
             <DialogDescription>
-              {editingUser ? 'Atualize o nome e o perfil de acesso do usuário.' : 'Preencha os dados para criar um novo usuário.'}
+              {editingUser ? 'Atualize o nome e o perfil de acesso do usuário.' : 'Preencha os dados para criar um novo usuário com acesso por e-mail e senha.'}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -287,10 +300,11 @@ export default function UsersManagement() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Senha</FormLabel>
+                      <FormLabel>Senha Inicial</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Mínimo de 6 caracteres" {...field} />
+                        <Input type="password" placeholder="Mínimo de 6 caracteres" {...field} value={field.value ?? ''} />
                       </FormControl>
+                      <FormDescription>Esta será a senha para o primeiro acesso.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -304,7 +318,7 @@ export default function UsersManagement() {
                     <FormLabel>Perfil de Acesso</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value || undefined}
                     >
                       <FormControl>
                         <SelectTrigger disabled={profilesLoading}>
@@ -333,7 +347,7 @@ export default function UsersManagement() {
                 </Button>
                 <Button type="submit" disabled={isSaving}>
                   {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Salvar
+                  {editingUser ? 'Salvar Alterações' : 'Criar Usuário'}
                 </Button>
               </DialogFooter>
             </form>
@@ -347,7 +361,7 @@ export default function UsersManagement() {
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação não pode ser desfeita. Isso excluirá permanentemente o
-              perfil do usuário do banco de dados.
+              perfil do usuário do banco de dados. O acesso no Firebase Auth não será removido automaticamente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

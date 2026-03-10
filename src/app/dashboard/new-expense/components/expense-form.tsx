@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -216,19 +215,26 @@ export default function ExpenseForm() {
           }];
 
     try {
+      // Find account plan name
+      const accountPlanObj = accountPlans?.find(ap => ap.id === data.accountPlan);
+      const accountPlanName = accountPlanObj ? accountPlanObj.name : data.accountPlan;
+
       await addDoc(collection(firestore, 'expenses'), {
         accountPlan: data.accountPlan,
+        accountPlanName: accountPlanName,
         description: data.description,
         supplier: data.supplier ?? '',
         notes: data.notes ?? '',
         totalValue: data.totalValue,
         competenceDate: Timestamp.fromDate(data.competenceDate),
-        dueDate: data.paymentMethod === 'installments'
-          ? Timestamp.fromDate(data.installmentType === 'equal' ? data.firstInstallmentDueDate! : data.variedInstallments![0].dueDate)
-          : Timestamp.fromDate(data.dueDate!),
+        dueDate: Timestamp.fromDate(
+          data.paymentMethod === 'installments'
+            ? (data.installmentType === 'equal' ? data.firstInstallmentDueDate! : data.variedInstallments![0].dueDate)
+            : data.dueDate!
+        ),
         paymentMethod: data.paymentMethod,
         isApportioned: data.isApportioned,
-        resultCenter: data.isApportioned ? null : data.resultCenter,
+        resultCenter: data.isApportioned ? null : (data.resultCenter ?? null),
         apportionments: data.isApportioned ? data.apportionments : null,
         installments: installmentsToSave,
         status: 'pending',
