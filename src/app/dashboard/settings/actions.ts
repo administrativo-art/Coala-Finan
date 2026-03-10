@@ -15,6 +15,8 @@ function getAdminApp() {
     throw new Error('CONFIG_MISSING');
   }
 
+  // A chave privada vinda do Secret Manager/Environment costuma conter strings de \n literais.
+  // O replace garante que o Node.js as interprete corretamente como quebras de linha reais.
   const serviceAccount: ServiceAccount = {
     projectId,
     clientEmail,
