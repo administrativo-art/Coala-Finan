@@ -10,13 +10,15 @@ export function useUser() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) {
-      setLoading(false);
-      return;
-    }
+    // Se o serviço de autenticação ainda não estiver pronto, mantemos o estado de loading.
+    // Não chamamos setLoading(false) aqui para evitar redirecionamentos errôneos
+    // antes da inicialização do SDK.
+    if (!auth) return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    // O onAuthStateChanged é assíncrono. Ele verifica se há um token persistido
+    // e restaura a sessão. Só alteramos o loading após essa primeira verificação.
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       setLoading(false);
     });
 

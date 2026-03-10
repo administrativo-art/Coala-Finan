@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { LogOut, User, LifeBuoy, Loader2 } from 'lucide-react';
+import { LogOut, User as UserIcon, LifeBuoy, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { data: userProfile, loading: profileLoading } = useDoc(userDocRef);
 
   useEffect(() => {
+    // Só redirecionamos para a home se o loading terminou E não há usuário.
     if (!userLoading && !user) {
       router.replace('/');
     }
@@ -52,12 +53,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .join('');
   };
 
-  if (userLoading || !user) {
+  // Se estiver carregando o estado de autenticação, mostramos o loader centralizado.
+  if (userLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // Se não houver usuário (após o loading), retornamos null.
+  // O useEffect acima cuidará do redirecionamento.
+  if (!user) {
+    return null;
   }
 
   return (
@@ -69,11 +77,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="ml-auto flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full border border-primary/10">
                   <Avatar className="h-9 w-9">
                     {user.photoURL && <AvatarImage src={user.photoURL} alt={userProfile?.name || ''} />}
-                    <AvatarFallback>
-                      {userProfile ? getInitials(userProfile.name) : <User className="h-5 w-5" />}
+                    <AvatarFallback className="bg-primary/5 text-primary">
+                      {userProfile ? getInitials(userProfile.name) : <UserIcon className="h-5 w-5" />}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -87,17 +95,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Link href="/dashboard/settings">
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
+                  <DropdownMenuItem className="cursor-pointer">
+                    <UserIcon className="mr-2 h-4 w-4" />
                     <span>Perfil</span>
                   </DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <LifeBuoy className="mr-2 h-4 w-4" />
                   <span>Suporte</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-500 focus:text-rose-500">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sair</span>
                 </DropdownMenuItem>
