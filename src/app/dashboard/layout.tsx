@@ -69,45 +69,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/10 bg-transparent px-4 backdrop-blur-lg sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <div className="ml-auto flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full border border-primary/10">
-                  <Avatar className="h-9 w-9">
-                    {user.photoURL && <AvatarImage src={user.photoURL} alt={userProfile?.name || ''} />}
-                    <AvatarFallback className="bg-primary/5 text-primary">
-                      {userProfile ? getInitials(userProfile.name) : <UserIcon className="h-5 w-5" />}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{profileLoading ? 'Carregando...' : userProfile?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/dashboard/settings">
-                  <DropdownMenuItem className="cursor-pointer">
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Perfil</span>
-                  </DropdownMenuItem>
-                </Link>
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-end border-b border-border/10 bg-transparent px-6 backdrop-blur-lg">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full border border-primary/10">
+                <Avatar className="h-10 w-10">
+                  {user.photoURL && <AvatarImage src={user.photoURL} alt={userProfile?.name || ''} />}
+                  <AvatarFallback className="bg-primary/5 text-primary">
+                    {userProfile ? getInitials(userProfile.name) : <UserIcon className="h-5 w-5" />}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{profileLoading ? 'Carregando...' : userProfile?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <Link href="/dashboard/settings">
                 <DropdownMenuItem className="cursor-pointer">
-                  <LifeBuoy className="mr-2 h-4 w-4" />
-                  <span>Suporte</span>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>Perfil</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-500 focus:text-rose-500">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              </Link>
+              <DropdownMenuItem className="cursor-pointer">
+                <LifeBuoy className="mr-2 h-4 w-4" />
+                <span>Suporte</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-500 focus:text-rose-500">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sair</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
         <main className="flex-1 p-4 sm:p-6">{children}</main>
         <OfflineBanner />

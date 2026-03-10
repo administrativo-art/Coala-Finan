@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -55,9 +54,9 @@ export default function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex flex-col gap-2 px-2 py-2">
-          {/* Estado Expandido: Logo + Nome + Trigger */}
-          <div className="flex items-center justify-between group-data-[collapsible=icon]:hidden">
+        <div className="flex items-center justify-between px-2 py-2">
+          {/* expandido: logo + nome + trigger */}
+          <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-2">
               <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
               <span className="font-headline text-lg font-semibold text-sidebar-foreground">
@@ -67,8 +66,8 @@ export default function AppSidebar() {
             <SidebarTrigger />
           </div>
 
-          {/* Estado Colapsado: Logo + Trigger (Empilhados) */}
-          <div className="hidden flex-col items-center gap-4 group-data-[collapsible=icon]:flex">
+          {/* colapsado: só o trigger (o ícone do PiggyBank serve de logo) */}
+          <div className="hidden w-full flex-col items-center gap-4 group-data-[collapsible=icon]:flex">
             <PiggyBank className="h-7 w-7 text-primary" />
             <SidebarTrigger />
           </div>
