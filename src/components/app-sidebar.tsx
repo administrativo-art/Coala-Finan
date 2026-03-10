@@ -9,6 +9,12 @@ import {
   PiggyBank,
   Settings,
   Building2,
+  Receipt,
+  BarChart2,
+  Target,
+  Users,
+  ShieldCheck,
+  Tag
 } from 'lucide-react';
 import {
   Sidebar,
@@ -24,34 +30,18 @@ import {
 } from '@/components/ui/sidebar';
 
 const mainNavItems = [
-  {
-    href: '/dashboard',
-    icon: LayoutDashboard,
-    label: 'Painel',
-  },
-  {
-    href: '/dashboard/new-expense',
-    icon: FilePlus2,
-    label: 'Lançar despesa',
-  },
-  {
-    href: '/dashboard/financial-flow',
-    icon: ArrowLeftRight,
-    label: 'Fluxo financeiro',
-  },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Painel' },
+  { href: '/dashboard/new-expense', icon: FilePlus2, label: 'Lançar despesa' },
+];
+
+const financialNavItems = [
+  { href: '/dashboard/expenses', icon: Receipt, label: 'Painel de despesas' },
+  { href: '/dashboard/financial-flow', icon: BarChart2, label: 'Fluxo financeiro' },
 ];
 
 const systemNavItems = [
-  {
-    href: '/dashboard/settings/accounts',
-    icon: Building2,
-    label: 'Contas bancárias',
-  },
-  {
-    href: '/dashboard/settings',
-    icon: Settings,
-    label: 'Configurações',
-  },
+  { href: '/dashboard/settings/accounts', icon: Building2, label: 'Contas bancárias' },
+  { href: '/dashboard/settings', icon: Settings, label: 'Configurações' },
 ];
 
 export default function AppSidebar() {
@@ -61,7 +51,6 @@ export default function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between px-2 py-2">
-          {/* expandido: logo + nome + trigger */}
           <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-2">
               <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
@@ -71,8 +60,6 @@ export default function AppSidebar() {
             </div>
             <SidebarTrigger />
           </div>
-
-          {/* colapsado: só o trigger (o ícone do PiggyBank serve de logo) */}
           <div className="hidden w-full flex-col items-center gap-4 group-data-[collapsible=icon]:flex">
             <PiggyBank className="h-7 w-7 text-primary" />
             <SidebarTrigger />
@@ -86,16 +73,23 @@ export default function AppSidebar() {
             <SidebarMenu>
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                    className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent"
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
+                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label} className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent">
+                    <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Financeiro</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {financialNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label} className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent">
+                    <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -109,16 +103,8 @@ export default function AppSidebar() {
             <SidebarMenu>
               {systemNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                    className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent"
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
+                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label} className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent">
+                    <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
