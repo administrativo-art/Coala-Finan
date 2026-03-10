@@ -40,7 +40,7 @@ export async function createUserAction(data: {
       if (e.message === 'CONFIG_MISSING') {
         return { 
           success: false, 
-          error: 'O sistema ainda não foi configurado com a chave privada do Firebase Admin. Siga as instruções para configurar as variáveis de ambiente.' 
+          error: 'Configuração ausente: Os segredos FIREBASE_CLIENT_EMAIL ou FIREBASE_PRIVATE_KEY não foram encontrados no ambiente de execução.' 
         };
       }
       throw e;
@@ -49,14 +49,14 @@ export async function createUserAction(data: {
     const adminAuth = getAuth(app);
     const adminDb = getFirestore(app);
 
-    // Create user in Firebase Auth
+    // Cria o usuário no Firebase Auth
     const userRecord = await adminAuth.createUser({
       email: data.email,
       password: data.password,
       displayName: data.name,
     });
 
-    // Create user profile in Firestore
+    // Cria o perfil do usuário no Firestore
     await adminDb.collection('users').doc(userRecord.uid).set({
       name: data.name,
       email: data.email,
@@ -69,8 +69,8 @@ export async function createUserAction(data: {
   } catch (error: any) {
     console.error('createUserAction error:', error);
     if (error.code === 'auth/email-already-exists') {
-      return { success: false, error: 'Este e-mail já está em uso.' };
+      return { success: false, error: 'Este e-mail já está em uso por outro usuário.' };
     }
-    return { success: false, error: 'Ocorreu um erro ao criar o usuário no servidor.' };
+    return { success: false, error: 'Erro ao criar usuário: ' + (error.message || 'Ocorreu um erro inesperado no servidor.') };
   }
 }
