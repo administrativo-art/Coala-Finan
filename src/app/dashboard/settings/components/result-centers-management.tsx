@@ -141,7 +141,7 @@ export default function ResultCentersManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Centros de Resultado</CardTitle>
+        <CardTitle>Centros de resultado</CardTitle>
         <CardDescription>
           Gerencie os centros de resultado para alocar as despesas.
         </CardDescription>
@@ -150,7 +150,7 @@ export default function ResultCentersManagement() {
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Centro de Resultado
+            Adicionar centro de resultado
           </Button>
         </div>
         <Table>
@@ -215,7 +215,7 @@ export default function ResultCentersManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingResultCenter ? 'Editar' : 'Adicionar'} Centro de Resultado
+              {editingResultCenter ? 'Editar' : 'Adicionar'} centro de resultado
             </DialogTitle>
             <DialogDescription>
               Preencha os detalhes do centro de resultado.
@@ -241,7 +241,7 @@ export default function ResultCentersManagement() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição (Opcional)</FormLabel>
+                    <FormLabel>Descrição (opcional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Breve descrição" {...field} value={field.value ?? ''} />
                     </FormControl>

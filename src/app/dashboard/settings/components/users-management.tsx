@@ -188,7 +188,7 @@ export default function UsersManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gerenciamento de Usuários</CardTitle>
+        <CardTitle>Gerenciamento de usuários</CardTitle>
         <CardDescription>
           Adicione, edite ou remova usuários do sistema.
         </CardDescription>
@@ -197,7 +197,7 @@ export default function UsersManagement() {
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <UserPlus className="mr-2 h-4 w-4" />
-            Adicionar Usuário
+            Adicionar usuário
           </Button>
         </div>
         <Table>
@@ -263,7 +263,7 @@ export default function UsersManagement() {
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} Usuário</DialogTitle>
+            <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} usuário</DialogTitle>
             <DialogDescription>
               {editingUser ? 'Atualize os dados do usuário no sistema.' : 'Crie um novo acesso. A senha será usada para o primeiro login.'}
             </DialogDescription>
@@ -302,7 +302,7 @@ export default function UsersManagement() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Senha Inicial</FormLabel>
+                      <FormLabel>Senha inicial</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="Mínimo 6 caracteres" {...field} value={field.value || ''} />
                       </FormControl>
@@ -317,7 +317,7 @@ export default function UsersManagement() {
                 name="profile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Perfil de Acesso (Opcional)</FormLabel>
+                    <FormLabel>Perfil de acesso (opcional)</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value || undefined}
@@ -342,7 +342,7 @@ export default function UsersManagement() {
 
               <Alert variant="default" className="bg-primary/5 border-primary/20">
                 <AlertCircle className="h-4 w-4 text-primary" />
-                <AlertTitle className="text-xs font-semibold">Aviso de Configuração</AlertTitle>
+                <AlertTitle className="text-xs font-semibold">Aviso de configuração</AlertTitle>
                 <AlertDescription className="text-[10px] leading-tight text-muted-foreground">
                   A criação de usuários requer as chaves ADMIN configuradas no arquivo .env para funcionar corretamente.
                 </AlertDescription>
@@ -358,7 +358,7 @@ export default function UsersManagement() {
                 </Button>
                 <Button type="submit" disabled={isSaving}>
                   {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editingUser ? 'Salvar Alterações' : 'Criar Usuário'}
+                  {editingUser ? 'Salvar alterações' : 'Criar usuário'}
                 </Button>
               </DialogFooter>
             </form>

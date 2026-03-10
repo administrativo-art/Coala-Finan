@@ -135,7 +135,7 @@ export default function ProfilesManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Perfis de Acesso</CardTitle>
+        <CardTitle>Perfis de acesso</CardTitle>
         <CardDescription>
           Defina os níveis de permissão para cada perfil de usuário.
         </CardDescription>
@@ -144,13 +144,13 @@ export default function ProfilesManagement() {
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Perfil
+            Adicionar perfil
           </Button>
         </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome do Perfil</TableHead>
+              <TableHead>Nome do perfil</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead>
                 <span className="sr-only">Ações</span>
@@ -209,7 +209,7 @@ export default function ProfilesManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingProfile ? 'Editar' : 'Adicionar'} Perfil de Acesso
+              {editingProfile ? 'Editar' : 'Adicionar'} perfil de acesso
             </DialogTitle>
             <DialogDescription>
               Preencha os detalhes do perfil de acesso.
@@ -235,7 +235,7 @@ export default function ProfilesManagement() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição (Opcional)</FormLabel>
+                    <FormLabel>Descrição (opcional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Ex: Acesso total ao sistema."

@@ -167,7 +167,7 @@ export default function AccountPlansManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Plano de Contas</CardTitle>
+        <CardTitle>Plano de contas</CardTitle>
         <CardDescription>
           Gerencie a estrutura hierárquica do seu plano de contas.
         </CardDescription>
@@ -176,7 +176,7 @@ export default function AccountPlansManagement() {
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Conta
+            Adicionar conta
           </Button>
         </div>
         <Table>
@@ -243,7 +243,7 @@ export default function AccountPlansManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingAccountPlan ? 'Editar' : 'Adicionar'} Conta
+              {editingAccountPlan ? 'Editar' : 'Adicionar'} conta
             </DialogTitle>
             <DialogDescription>
               Preencha os detalhes da conta do plano de contas.
@@ -269,7 +269,7 @@ export default function AccountPlansManagement() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição (Opcional)</FormLabel>
+                    <FormLabel>Descrição (opcional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Breve descrição" {...field} value={field.value ?? ''} />
                     </FormControl>
@@ -282,7 +282,7 @@ export default function AccountPlansManagement() {
                 name="parentId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Conta Pai (Opcional)</FormLabel>
+                    <FormLabel>Conta pai (opcional)</FormLabel>
                     <Select onValueChange={(value) => field.onChange(value === 'null' ? null : value)} value={field.value ?? 'null'} >
                       <FormControl>
                         <SelectTrigger>
@@ -290,7 +290,7 @@ export default function AccountPlansManagement() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="null">Nenhuma (Conta Raiz)</SelectItem>
+                        <SelectItem value="null">Nenhuma (conta raiz)</SelectItem>
                         {flattenedAccounts.map((account) => (
                            <SelectItem key={account.id} value={account.id} disabled={editingAccountPlan?.id === account.id}>
                            <span style={{ paddingLeft: `${(account.level || 0) * 1}rem` }}>{account.name}</span>

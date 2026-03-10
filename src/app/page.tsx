@@ -27,7 +27,7 @@ export default function LoginPage() {
     if (!auth || !firestore) {
       toast({
         variant: 'destructive',
-        title: 'Erro de Configuração',
+        title: 'Erro de configuração',
         description: 'Serviços do Firebase não estão disponíveis.',
       });
       return;
@@ -46,7 +46,7 @@ export default function LoginPage() {
 
         if (!userDocSnap.exists()) {
           await setDoc(userDocRef, {
-            name: user.displayName || email.split('@')[0] || 'Novo Usuário',
+            name: user.displayName || email.split('@')[0] || 'Novo usuário',
             email: user.email,
             profile: '',
           });
@@ -66,7 +66,7 @@ export default function LoginPage() {
       }
       toast({
         variant: 'destructive',
-        title: 'Falha no Login',
+        title: 'Falha no login',
         description,
       });
     } finally {
@@ -78,11 +78,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="mb-8 flex items-center gap-3 text-primary">
         <PiggyBank className="h-10 w-10" />
-        <h1 className="font-headline text-4xl font-bold">Coala Financeiro</h1>
+        <h1 className="font-headline text-4xl font-bold">Coala financeiro</h1>
       </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Acesso ao Sistema</CardTitle>
+          <CardTitle className="font-headline text-2xl">Acesso ao sistema</CardTitle>
           <CardDescription>Insira suas credenciais para continuar.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,7 +123,7 @@ export default function LoginPage() {
         </CardContent>
       </Card>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Coala Financeiro. Todos os direitos reservados.
+        © {new Date().getFullYear()} Coala financeiro. Todos os direitos reservados.
       </footer>
     </div>
   );

@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -21,9 +20,9 @@ export default function SettingsPage() {
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users">Usuários</TabsTrigger>
-          <TabsTrigger value="profiles">Perfis de Acesso</TabsTrigger>
-          <TabsTrigger value="account-plans">Plano de Contas</TabsTrigger>
-          <TabsTrigger value="result-centers">Centros de Resultado</TabsTrigger>
+          <TabsTrigger value="profiles">Perfis de acesso</TabsTrigger>
+          <TabsTrigger value="account-plans">Plano de contas</TabsTrigger>
+          <TabsTrigger value="result-centers">Centros de resultado</TabsTrigger>
         </TabsList>
         <TabsContent value="users">
           <UsersManagement />

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -33,12 +32,12 @@ const mainNavItems = [
   {
     href: '/dashboard/new-expense',
     icon: FilePlus2,
-    label: 'Lançar Despesa',
+    label: 'Lançar despesa',
   },
   {
     href: '/dashboard/financial-flow',
     icon: ArrowLeftRight,
-    label: 'Fluxo Financeiro',
+    label: 'Fluxo financeiro',
   },
 ];
 
@@ -46,7 +45,7 @@ const systemNavItems = [
   {
     href: '/dashboard/settings/accounts',
     icon: Building2,
-    label: 'Contas Bancárias',
+    label: 'Contas bancárias',
   },
   {
     href: '/dashboard/settings',
@@ -82,7 +81,7 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => (

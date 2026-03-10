@@ -128,7 +128,7 @@ export default function FinancialFlowPage() {
 
   const exportCSV = () => {
     if (!filtered.length) return;
-    const header = 'Descrição,Plano de Contas,Valor,Competência,Vencimento,Status\n';
+    const header = 'Descrição,Plano de contas,Valor,Competência,Vencimento,Status\n';
     const rows = filtered.map(e => {
       const comp = toDate(e.competenceDate);
       const due = toDate(e.dueDate);
@@ -159,7 +159,7 @@ export default function FinancialFlowPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-headline text-3xl font-bold tracking-tight">Fluxo Financeiro</h1>
+          <h1 className="font-headline text-3xl font-bold tracking-tight">Fluxo financeiro</h1>
           <p className="text-muted-foreground">Análise de movimentações provisionadas e liquidadas.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function FinancialFlowPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="border-amber-500/20 bg-amber-500/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total em Aberto</CardTitle>
+            <CardTitle className="text-sm font-medium">Total em aberto</CardTitle>
             <AlertCircle className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
@@ -194,7 +194,7 @@ export default function FinancialFlowPage() {
         </Card>
         <Card className="border-emerald-500/20 bg-emerald-500/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Pago</CardTitle>
+            <CardTitle className="text-sm font-medium">Total pago</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
@@ -204,7 +204,7 @@ export default function FinancialFlowPage() {
         </Card>
         <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Fluxo Total</CardTitle>
+            <CardTitle className="text-sm font-medium">Fluxo total</CardTitle>
             <TrendingDown className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -217,7 +217,7 @@ export default function FinancialFlowPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 shadow-xl">
           <CardHeader>
-            <CardTitle className="text-lg font-headline">Saídas: Provisionado vs Pago</CardTitle>
+            <CardTitle className="text-lg font-headline">Saídas: provisionado vs pago</CardTitle>
             <CardDescription>Comparativo mensal de despesas lançadas e pagas.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -268,7 +268,7 @@ export default function FinancialFlowPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status do Pagamento</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status do pagamento</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <Filter className="mr-2 h-4 w-4 opacity-50" />
@@ -276,8 +276,8 @@ export default function FinancialFlowPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="pending">Somente Pendentes</SelectItem>
-                  <SelectItem value="paid">Somente Pagos</SelectItem>
+                  <SelectItem value="pending">Somente pendentes</SelectItem>
+                  <SelectItem value="paid">Somente pagos</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -290,7 +290,7 @@ export default function FinancialFlowPage() {
                 <span className="font-bold">{filtered.length}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Eficiência (Pagos)</span>
+                <span className="text-muted-foreground">Eficiência (pagos)</span>
                 <span className="font-bold text-emerald-500">
                   {filtered.length > 0 ? Math.round((filtered.filter(e => e.status === 'paid').length / filtered.length) * 100) : 0}%
                 </span>
@@ -309,7 +309,7 @@ export default function FinancialFlowPage() {
       <Card className="shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-headline">Lançamentos Detalhados</CardTitle>
+            <CardTitle className="text-xl font-headline">Lançamentos detalhados</CardTitle>
             <CardDescription>Lista completa de despesas e provisões filtradas.</CardDescription>
           </div>
         </CardHeader>

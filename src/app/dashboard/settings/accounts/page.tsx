@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -21,8 +20,8 @@ import { Switch } from '@/components/ui/switch';
 import { Loader2, Plus, Pencil, Trash2, PlusCircle, X, Building2, CreditCard, Banknote, Landmark, Smartphone } from 'lucide-react';
 
 const PAYMENT_TYPES = [
-  { value: 'debit_card', label: 'Cartão de Débito', icon: CreditCard },
-  { value: 'credit_card', label: 'Cartão de Crédito', icon: CreditCard },
+  { value: 'debit_card', label: 'Cartão de débito', icon: CreditCard },
+  { value: 'credit_card', label: 'Cartão de crédito', icon: CreditCard },
   { value: 'pix', label: 'PIX', icon: Smartphone },
   { value: 'transfer', label: 'Transferência', icon: Landmark },
   { value: 'cash', label: 'Dinheiro', icon: Banknote },
@@ -121,11 +120,11 @@ export default function AccountsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-headline text-3xl font-bold tracking-tight">Contas Bancárias</h1>
+          <h1 className="font-headline text-3xl font-bold tracking-tight">Contas bancárias</h1>
           <p className="text-muted-foreground">Gerencie suas instituições financeiras e formas de pagamento.</p>
         </div>
         <Button onClick={openCreate} className="shadow-lg">
-          <Plus className="mr-2 h-4 w-4" /> Nova Conta
+          <Plus className="mr-2 h-4 w-4" /> Nova conta
         </Button>
       </div>
 
@@ -139,7 +138,7 @@ export default function AccountsPage() {
           <p className="text-lg font-medium">Nenhuma conta cadastrada</p>
           <p className="mb-6 text-sm text-muted-foreground">Comece adicionando seu banco principal.</p>
           <Button variant="outline" onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Adicionar Primeiro Banco
+            <Plus className="mr-2 h-4 w-4" /> Adicionar primeiro banco
           </Button>
         </Card>
       ) : (
@@ -196,7 +195,7 @@ export default function AccountsPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="font-headline text-2xl">
-              {editTarget ? 'Editar Conta' : 'Nova Conta Bancária'}
+              {editTarget ? 'Editar conta' : 'Nova conta bancária'}
             </DialogTitle>
             <DialogDescription>Configure os dados do banco e as formas de pagamento disponíveis.</DialogDescription>
           </DialogHeader>
@@ -209,7 +208,7 @@ export default function AccountsPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem className="sm:col-span-2">
-                      <FormLabel>Nome da Instituição</FormLabel>
+                      <FormLabel>Nome da instituição</FormLabel>
                       <FormControl>
                         <Input placeholder="Ex: Itaú, Nubank, Caixa" {...field} />
                       </FormControl>
@@ -222,7 +221,7 @@ export default function AccountsPage() {
                   name="agency"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Agência (Opcional)</FormLabel>
+                      <FormLabel>Agência (opcional)</FormLabel>
                       <FormControl>
                         <Input placeholder="0001" {...field} />
                       </FormControl>
@@ -235,7 +234,7 @@ export default function AccountsPage() {
                   name="accountNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Número da Conta (Opcional)</FormLabel>
+                      <FormLabel>Número da conta (opcional)</FormLabel>
                       <FormControl>
                         <Input placeholder="12345-6" {...field} />
                       </FormControl>
@@ -251,7 +250,7 @@ export default function AccountsPage() {
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-lg border p-3">
                     <div className="space-y-0.5">
-                      <FormLabel>Conta Ativa</FormLabel>
+                      <FormLabel>Conta ativa</FormLabel>
                       <CardDescription className="text-xs">Contas inativas não aparecem em novos lançamentos.</CardDescription>
                     </div>
                     <FormControl>
@@ -263,14 +262,14 @@ export default function AccountsPage() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Formas de Pagamento</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Formas de pagamento</h3>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => append({ id: crypto.randomUUID(), type: 'debit_card', label: '' })}
                   >
-                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Forma
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar forma
                   </Button>
                 </div>
 
@@ -318,7 +317,7 @@ export default function AccountsPage() {
                           name={`paymentMethods.${index}.label`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-xs">Rótulo / Nome</FormLabel>
+                              <FormLabel className="text-xs">Rótulo / nome</FormLabel>
                               <FormControl>
                                 <Input className="h-9" placeholder="Ex: Visa Gold, PIX CNPJ" {...field} />
                               </FormControl>
@@ -338,7 +337,7 @@ export default function AccountsPage() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
                 <Button type="submit" disabled={isSaving}>
                   {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editTarget ? 'Salvar Alterações' : 'Criar Conta'}
+                  {editTarget ? 'Salvar alterações' : 'Criar conta'}
                 </Button>
               </DialogFooter>
             </form>
@@ -358,7 +357,7 @@ export default function AccountsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-rose-500 hover:bg-rose-600">
-              Excluir Permanentemente
+              Excluir permanentemente
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

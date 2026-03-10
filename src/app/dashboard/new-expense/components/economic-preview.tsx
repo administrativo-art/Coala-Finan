@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -113,12 +112,12 @@ export function EconomicPreview() {
   return (
     <Card className="sticky top-20">
       <CardHeader>
-        <CardTitle className="font-headline">Preview Econômico</CardTitle>
+        <CardTitle className="font-headline">Preview econômico</CardTitle>
         <CardDescription>Resumo da despesa em tempo real.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Valor Total:</span>
+          <span className="text-muted-foreground">Valor total:</span>
           <span className="font-medium">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(values.totalValue || 0)}
           </span>
@@ -142,9 +141,9 @@ export function EconomicPreview() {
           {getInstallmentSummary()}
         </div>
         <Separator />
-        <p className="font-medium text-muted-foreground">Plano de Contas:</p>
+        <p className="font-medium text-muted-foreground">Plano de contas:</p>
         <p>{values.accountPlan || 'Não definido'}</p>
-        <p className="font-medium text-muted-foreground">Centro(s) de Resultado:</p>
+        <p className="font-medium text-muted-foreground">Centro(s) de resultado:</p>
         {values.isApportioned ? (
           <ul className="list-disc pl-5">
             {(values.apportionments || []).map((app, i) => (
@@ -167,7 +166,7 @@ export function EconomicPreview() {
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
             )}
-            Gerar Insights com IA
+            Gerar insights com IA
           </Button>
           {!hasRequiredFieldsForInsights && !isLoading && (
             <p className="text-center text-xs text-muted-foreground italic px-2">
@@ -181,14 +180,14 @@ export function EconomicPreview() {
         {error && (
           <Alert variant="destructive">
             <Terminal className="h-4 w-4" />
-            <AlertTitle>Erro na Análise</AlertTitle>
+            <AlertTitle>Erro na análise</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         {insights && (
           <Alert>
             <Sparkles className="h-4 w-4" />
-            <AlertTitle className="font-headline">Insights Gerados</AlertTitle>
+            <AlertTitle className="font-headline">Insights gerados</AlertTitle>
             <AlertDescription>
               <ScrollArea className="h-32">
                 <p className="text-xs leading-relaxed">{insights}</p>

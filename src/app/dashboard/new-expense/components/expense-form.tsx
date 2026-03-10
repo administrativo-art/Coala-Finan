@@ -255,7 +255,7 @@ export default function ExpenseForm() {
       });
 
       toast({
-        title: 'Despesa Lançada!',
+        title: 'Despesa lançada!',
         description: 'A provisão foi criada com sucesso no sistema.',
       });
       form.reset();
@@ -394,7 +394,7 @@ export default function ExpenseForm() {
                 name="accountPlan"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Plano de Contas</FormLabel>
+                    <FormLabel>Plano de contas</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                       <FormControl>
                         <SelectTrigger disabled={accountPlansLoading}>
@@ -418,7 +418,7 @@ export default function ExpenseForm() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição da Despesa</FormLabel>
+                    <FormLabel>Descrição da despesa</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: Compra de material de escritório" {...field} value={field.value ?? ''} />
                     </FormControl>
@@ -439,7 +439,7 @@ export default function ExpenseForm() {
                     2
                   </div>
                   <div>
-                    <CardTitle>Valores e Datas</CardTitle>
+                    <CardTitle>Valores e datas</CardTitle>
                     <CardDescription>Defina o valor e as datas de vencimento.</CardDescription>
                   </div>
                 </div>
@@ -450,7 +450,7 @@ export default function ExpenseForm() {
                   name="totalValue"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Valor Total</FormLabel>
+                      <FormLabel>Valor total</FormLabel>
                       <FormControl>
                         <CurrencyInput
                           value={field.value}
@@ -466,7 +466,7 @@ export default function ExpenseForm() {
                   name="competenceDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col pt-2">
-                      <FormLabel>Data de Competência</FormLabel>
+                      <FormLabel>Data de competência</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -520,7 +520,7 @@ export default function ExpenseForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Pagamento e Parcelamento</CardTitle>
+                <CardTitle>Pagamento e parcelamento</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -528,7 +528,7 @@ export default function ExpenseForm() {
                   name="paymentMethod"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Forma de Pagamento</FormLabel>
+                      <FormLabel>Forma de pagamento</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -536,7 +536,7 @@ export default function ExpenseForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="single">À Vista</SelectItem>
+                          <SelectItem value="single">À vista</SelectItem>
                           <SelectItem value="installments">Parcelado</SelectItem>
                         </SelectContent>
                       </Select>
@@ -552,7 +552,7 @@ export default function ExpenseForm() {
                       name="installmentType"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>Tipo de Parcelamento</FormLabel>
+                          <FormLabel>Tipo de parcelamento</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
@@ -565,7 +565,7 @@ export default function ExpenseForm() {
                                   <RadioGroupItem value="equal" id="equal-installments" />
                                 </FormControl>
                                 <FormLabel htmlFor="equal-installments" className="font-normal cursor-pointer">
-                                  Parcelas Iguais
+                                  Parcelas iguais
                                 </FormLabel>
                               </FormItem>
                               <FormItem className="flex items-center space-x-2">
@@ -573,7 +573,7 @@ export default function ExpenseForm() {
                                   <RadioGroupItem value="varied" id="varied-installments" />
                                 </FormControl>
                                 <FormLabel htmlFor="varied-installments" className="font-normal cursor-pointer">
-                                  Valores Diferentes
+                                  Valores diferentes
                                 </FormLabel>
                               </FormItem>
                             </RadioGroup>
@@ -591,7 +591,7 @@ export default function ExpenseForm() {
                             name="installments"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Qtde. Parcelas</FormLabel>
+                                <FormLabel>Qtde. parcelas</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
@@ -611,7 +611,7 @@ export default function ExpenseForm() {
                             name="firstInstallmentDueDate"
                             render={({ field }) => (
                               <FormItem className="flex flex-col pt-2">
-                                <FormLabel>1º Vencimento</FormLabel>
+                                <FormLabel>1º vencimento</FormLabel>
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <FormControl>
@@ -669,7 +669,7 @@ export default function ExpenseForm() {
                         </div>
                         {equalInstallments.length > 0 && (
                           <div className="space-y-2">
-                            <Label>Parcelas Geradas (Somente Leitura)</Label>
+                            <Label>Parcelas geradas (Somente leitura)</Label>
                             <ScrollArea className="h-48 rounded-md border">
                               <Table>
                                 <TableHeader>
@@ -707,7 +707,7 @@ export default function ExpenseForm() {
                           name="installments"
                           render={({ field }) => (
                             <FormItem className="max-w-xs">
-                              <FormLabel>Quantidade de Parcelas</FormLabel>
+                              <FormLabel>Quantidade de parcelas</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -800,7 +800,7 @@ export default function ExpenseForm() {
                         {variedInstallments && variedInstallments.length > 0 && (
                           <CardFooter className="flex-col items-stretch gap-2 rounded-lg border bg-muted/50 p-4 mt-4">
                             <div className="flex justify-between text-sm font-medium">
-                              <span>Total das Parcelas:</span>
+                              <span>Total das parcelas:</span>
                               <span>
                                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                                   variedInstallmentsTotal
@@ -841,7 +841,7 @@ export default function ExpenseForm() {
                   3
                 </div>
                 <div>
-                  <CardTitle>Centro de Resultado e Rateio</CardTitle>
+                  <CardTitle>Centro de resultado e rateio</CardTitle>
                   <CardDescription>Aloque a despesa nos centros de resultado.</CardDescription>
                 </div>
               </div>
@@ -868,7 +868,7 @@ export default function ExpenseForm() {
                   name="resultCenter"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Centro de Resultado</FormLabel>
+                      <FormLabel>Centro de resultado</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                         <FormControl>
                           <SelectTrigger disabled={resultCentersLoading}>
@@ -923,7 +923,7 @@ export default function ExpenseForm() {
                         name={`apportionments.${index}.resultCenter`}
                         render={({ field }) => (
                           <FormItem className="flex-1">
-                            {index === 0 && <FormLabel>Centro de Resultado</FormLabel>}
+                            {index === 0 && <FormLabel>Centro de resultado</FormLabel>}
                             <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                               <FormControl>
                                 <SelectTrigger disabled={resultCentersLoading}>
@@ -978,7 +978,7 @@ export default function ExpenseForm() {
                     size="sm"
                     onClick={() => appendApportionment({ resultCenter: '', percentage: 0 })}
                   >
-                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Rateio
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar rateio
                   </Button>
                   {form.formState.errors.apportionments && (
                     <FormMessage>{form.formState.errors.apportionments.message}</FormMessage>
@@ -1007,9 +1007,9 @@ export default function ExpenseForm() {
                 name="supplier"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Fornecedor</FormLabel>
+                    <FormLabel>Nome do fornecedor</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Nome do Fornecedor LTDA" {...field} value={field.value ?? ''} />
+                      <Input placeholder="Ex: Nome do fornecedor LTDA" {...field} value={field.value ?? ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1020,7 +1020,7 @@ export default function ExpenseForm() {
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Notas Adicionais</FormLabel>
+                    <FormLabel>Notas adicionais</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Detalhes adicionais sobre a despesa..."
@@ -1050,7 +1050,7 @@ export default function ExpenseForm() {
             </Button>
             <Button type="submit" disabled={isSaving || !form.formState.isValid}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Lançar Despesa
+              Lançar despesa
             </Button>
           </div>
         </div>

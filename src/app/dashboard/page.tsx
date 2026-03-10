@@ -29,7 +29,7 @@ export default function DashboardPage() {
       note: 'Em breve',
     },
     {
-      title: 'DRE (Resultado)',
+      title: 'DRE (resultado)',
       value: formatCurrency(indicators?.dre ?? null),
       icon: LineChart,
       color: indicators?.dre != null && indicators.dre >= 0
@@ -38,7 +38,7 @@ export default function DashboardPage() {
         ? 'bg-emerald-500/10' : 'bg-rose-500/10',
     },
     {
-      title: 'Despesas em Aberto',
+      title: 'Despesas em aberto',
       value: formatCurrency(indicators?.despesasEmAberto ?? null),
       icon: CircleDollarSign,
       color: 'text-amber-500',
@@ -83,7 +83,7 @@ export default function DashboardPage() {
 
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Atividade Recente</CardTitle>
+          <CardTitle className="font-headline text-xl">Atividade recente</CardTitle>
         </CardHeader>
         <CardContent>
           <RecentExpenses expenses={expenses} loading={loading} />
