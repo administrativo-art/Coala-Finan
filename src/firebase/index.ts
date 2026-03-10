@@ -43,6 +43,7 @@ export function initializeFirebase(): FirebaseInstances {
     });
   } catch (e) {
     // Caso já tenha sido inicializado (comum no Hot Reload do Next.js)
+    // usamos getFirestore para recuperar a instância existente
     firestore = getFirestore(app);
   }
 
