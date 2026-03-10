@@ -55,17 +55,23 @@ export default function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center justify-between px-2 py-1">
-          <div className="flex items-center gap-2 overflow-hidden transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:hidden">
-            <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
-            <span className="font-headline text-lg font-semibold text-sidebar-foreground truncate">
-              Coala
-            </span>
+        <div className="flex flex-col gap-2 px-2 py-2">
+          {/* Estado Expandido: Logo + Nome + Trigger */}
+          <div className="flex items-center justify-between group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center gap-2">
+              <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
+              <span className="font-headline text-lg font-semibold text-sidebar-foreground">
+                Coala
+              </span>
+            </div>
+            <SidebarTrigger />
           </div>
 
-          <PiggyBank className="hidden h-7 w-7 shrink-0 text-primary transition-opacity duration-300 group-data-[collapsible=icon]:block" />
-
-          <SidebarTrigger />
+          {/* Estado Colapsado: Logo + Trigger (Empilhados) */}
+          <div className="hidden flex-col items-center gap-4 group-data-[collapsible=icon]:flex">
+            <PiggyBank className="h-7 w-7 text-primary" />
+            <SidebarTrigger />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
