@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +10,6 @@ import {
   PiggyBank,
   Settings,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +18,12 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
 } from '@/components/ui/sidebar';
 
-const navItems = [
+const mainNavItems = [
   {
     href: '/dashboard',
     icon: LayoutDashboard,
@@ -36,6 +39,9 @@ const navItems = [
     icon: ArrowLeftRight,
     label: 'Fluxo Financeiro',
   },
+];
+
+const systemNavItems = [
   {
     href: '/dashboard/settings',
     icon: Settings,
@@ -50,38 +56,64 @@ export default function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between px-2 py-1">
-          {/* Logo expandido — some quando colapsado */}
-          <div className="flex items-center gap-2 overflow-hidden transition-all duration-300 group-data-[collapsible=icon]:hidden">
+          <div className="flex items-center gap-2 overflow-hidden transition-all duration-300 ease-in-out group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:hidden">
             <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
-            <span className="font-headline text-lg font-semibold text-sidebar-foreground">
+            <span className="font-headline text-lg font-semibold text-sidebar-foreground truncate">
               Coala
             </span>
           </div>
 
-          {/* Ícone sozinho — aparece só quando colapsado */}
-          <PiggyBank className="hidden h-7 w-7 shrink-0 text-primary group-data-[collapsible=icon]:block" />
+          <PiggyBank className="hidden h-7 w-7 shrink-0 text-primary transition-opacity duration-300 group-data-[collapsible=icon]:block" />
 
-          {/* Botão de toggle — sempre visível no desktop */}
           <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={item.label}
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <SidebarGroup>
+          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                    className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent"
+                  >
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel>Administração</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                    className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent"
+                  >
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
