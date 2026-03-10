@@ -17,9 +17,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Button } from './ui/button';
 
 const navItems = [
   {
@@ -50,31 +49,33 @@ export default function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div
-          data-sidebar="header-content"
-          className="flex items-center gap-2 overflow-hidden px-2 transition-all duration-300"
-        >
-          <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
-          <span className="font-headline text-lg font-semibold text-sidebar-foreground">
-            Coala
-          </span>
+        <div className="flex items-center justify-between px-2 py-1">
+          {/* Logo expandido — some quando colapsado */}
+          <div className="flex items-center gap-2 overflow-hidden transition-all duration-300 group-data-[collapsible=icon]:hidden">
+            <PiggyBank className="h-7 w-7 shrink-0 text-primary" />
+            <span className="font-headline text-lg font-semibold text-sidebar-foreground">
+              Coala
+            </span>
+          </div>
+
+          {/* Ícone sozinho — aparece só quando colapsado */}
+          <PiggyBank className="hidden h-7 w-7 shrink-0 text-primary group-data-[collapsible=icon]:block" />
+
+          {/* Botão de toggle — sempre visível no desktop */}
+          <SidebarTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
+              <Link href={item.href} passHref legacyBehavior>
                 <SidebarMenuButton
-                  asChild
                   isActive={pathname === item.href}
-                  tooltip={{ children: item.label }}
-                  className="justify-start"
+                  tooltip={item.label}
                 >
-                  <span>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </span>
+                  <item.icon />
+                  <span>{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
