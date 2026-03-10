@@ -61,6 +61,7 @@ export async function createUserAction(data: {
       name: data.name,
       email: data.email,
       profile: data.profile,
+      active: true,
       createdAt: new Date().toISOString(),
     });
 

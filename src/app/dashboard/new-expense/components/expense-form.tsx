@@ -44,10 +44,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { useCollection, useFirestore, useUser } from '@/firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface CalculatedInstallment {
   number: number;
@@ -76,7 +77,6 @@ const STEPS = [
 ];
 
 function Stepper({ progressPercent }: { progressPercent: number }) {
-  // O Stepper agora é puramente visual baseado no progresso real dos campos
   const currentStep = useMemo(() => {
     if (progressPercent < 25) return 1;
     if (progressPercent < 50) return 2;
@@ -128,7 +128,12 @@ export default function ExpenseForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user } = useUser();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingExpense, setIsLoadingExpense] = useState(false);
+
+  const editId = searchParams.get('edit');
 
   const accountPlansCollection = useMemo(() => (firestore ? collection(firestore, 'accountPlans') : null), [firestore]);
   const { data: accountPlans, loading: accountPlansLoading } = useCollection(accountPlansCollection);
@@ -159,6 +164,55 @@ export default function ExpenseForm() {
     },
     mode: 'onChange',
   });
+
+  useEffect(() => {
+    if (editId && firestore) {
+      const fetchExpense = async () => {
+        setIsLoadingExpense(true);
+        try {
+          const docRef = doc(firestore, 'expenses', editId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const resetData: any = {
+              accountPlan: data.accountPlan,
+              description: data.description,
+              supplier: data.supplier,
+              notes: data.notes,
+              totalValue: data.totalValue,
+              competenceDate: data.competenceDate instanceof Timestamp ? data.competenceDate.toDate() : new Date(data.competenceDate),
+              paymentMethod: data.paymentMethod,
+              isApportioned: data.isApportioned,
+              resultCenter: data.resultCenter || '',
+              apportionments: data.apportionments || [{ resultCenter: '', percentage: 100 }],
+              installments: data.installments?.length || 2,
+            };
+
+            if (data.paymentMethod === 'single') {
+              resetData.dueDate = data.dueDate instanceof Timestamp ? data.dueDate.toDate() : new Date(data.dueDate);
+            } else {
+              resetData.installmentType = data.installmentType || (data.installments?.every((i: any) => i.value === data.installments[0].value) ? 'equal' : 'varied');
+              if (resetData.installmentType === 'equal') {
+                resetData.firstInstallmentDueDate = data.installments[0].dueDate instanceof Timestamp ? data.installments[0].dueDate.toDate() : new Date(data.installments[0].dueDate);
+              } else {
+                resetData.variedInstallments = data.installments.map((i: any) => ({
+                  dueDate: i.dueDate instanceof Timestamp ? i.dueDate.toDate() : new Date(i.dueDate),
+                  value: i.value
+                }));
+              }
+            }
+            form.reset(resetData);
+          }
+        } catch (error) {
+          console.error("Error fetching expense:", error);
+          toast({ variant: 'destructive', title: 'Erro ao carregar despesa' });
+        } finally {
+          setIsLoadingExpense(false);
+        }
+      };
+      fetchExpense();
+    }
+  }, [editId, firestore, form, toast]);
 
   const { fields: apportionmentFields, append: appendApportionment, remove: removeApportionment } = useFieldArray({
     control: form.control,
@@ -229,7 +283,7 @@ export default function ExpenseForm() {
       const accountPlanObj = accountPlans?.find((ap) => ap.id === data.accountPlan);
       const accountPlanName = accountPlanObj ? accountPlanObj.name : data.accountPlan;
 
-      await addDoc(collection(firestore, 'expenses'), {
+      const payload: any = {
         accountPlan: data.accountPlan,
         accountPlanName: accountPlanName,
         description: data.description,
@@ -249,24 +303,31 @@ export default function ExpenseForm() {
         resultCenter: data.isApportioned ? null : (data.resultCenter ?? null),
         apportionments: data.isApportioned ? data.apportionments : null,
         installments: installmentsToSave,
-        status: 'pending',
-        createdAt: Timestamp.now(),
-        createdBy: user.uid,
-      });
+        updatedAt: Timestamp.now(),
+      };
 
-      toast({
-        title: 'Despesa lançada!',
-        description: 'A provisão foi criada com sucesso no sistema.',
-      });
-      form.reset();
-      setEqualInstallments([]);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (editId) {
+        await updateDoc(doc(firestore, 'expenses', editId), payload);
+        toast({ title: 'Despesa atualizada!' });
+        router.push('/dashboard/expenses');
+      } else {
+        await addDoc(collection(firestore, 'expenses'), {
+          ...payload,
+          status: 'pending',
+          createdAt: Timestamp.now(),
+          createdBy: user.uid,
+        });
+        toast({ title: 'Despesa lançada!' });
+        form.reset();
+        setEqualInstallments([]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } catch (error) {
       console.error(error);
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Não foi possível salvar a despesa no banco de dados.',
+        description: 'Não foi possível completar a operação.',
       });
     } finally {
       setIsSaving(false);
@@ -350,6 +411,14 @@ export default function ExpenseForm() {
       setEqualInstallments([]);
     }
   }, [totalValue, installmentsQty, firstInstallmentDueDate, installmentPeriodicity, installmentType, paymentMethod]);
+
+  if (isLoadingExpense) {
+    return (
+      <div className="flex h-96 w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
@@ -1041,16 +1110,20 @@ export default function ExpenseForm() {
               type="button"
               variant="outline"
               onClick={() => {
-                form.reset();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (editId) {
+                  router.push('/dashboard/expenses');
+                } else {
+                  form.reset();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
               disabled={isSaving}
             >
-              Cancelar
+              {editId ? 'Voltar' : 'Cancelar'}
             </Button>
             <Button type="submit" disabled={isSaving || !form.formState.isValid}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Lançar despesa
+              {editId ? 'Salvar alterações' : 'Lançar despesa'}
             </Button>
           </div>
         </div>

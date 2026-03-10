@@ -6,7 +6,9 @@ import { CalendarClock, CircleDollarSign, LineChart, Wallet } from 'lucide-react
 import { useDashboardIndicators } from '@/hooks/use-dashboard-indicators';
 import { cn } from '@/lib/utils';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, Timestamp } from 'firebase/firestore';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 function formatCurrency(value: number | null) {
   if (value === null) return '—';
@@ -15,6 +17,20 @@ function formatCurrency(value: number | null) {
     currency: 'BRL',
   }).format(value);
 }
+
+function toDate(ts: any): Date | null {
+  if (!ts) return null;
+  if (ts instanceof Timestamp) return ts.toDate();
+  if (typeof ts?.toDate === 'function') return ts.toDate();
+  return new Date(ts);
+}
+
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  paid: { label: 'Pago', className: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  cancelled: { label: 'Cancelado', className: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
+  overdue: { label: 'Vencido', className: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+  pending: { label: 'Em aberto', className: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+};
 
 export default function DashboardPage() {
   const { indicators, loading, expenses } = useDashboardIndicators();
@@ -26,7 +42,6 @@ export default function DashboardPage() {
       icon: Wallet,
       color: 'text-sky-500',
       bg: 'bg-sky-500/10',
-      note: 'Em breve',
     },
     {
       title: 'DRE (resultado)',
@@ -58,9 +73,9 @@ export default function DashboardPage() {
       <h1 className="font-headline text-3xl font-bold tracking-tight">Painel</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <Card key={card.title} className="shadow-lg transition-transform hover:scale-105">
+          <Card key={card.title} className="shadow-lg transition-transform hover:scale-[1.02]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{card.title}</CardTitle>
               <div className={cn('rounded-full p-2', card.bg)}>
                 <card.icon className={cn('h-4 w-4', card.color)} />
               </div>
@@ -69,12 +84,7 @@ export default function DashboardPage() {
               {loading ? (
                 <Skeleton className="h-8 w-32" />
               ) : (
-                <>
-                  <div className="text-2xl font-bold">{card.value}</div>
-                  {card.note && (
-                    <p className="text-xs text-muted-foreground mt-1">{card.note}</p>
-                  )}
-                </>
+                <div className="text-2xl font-bold tracking-tight">{card.value}</div>
               )}
             </CardContent>
           </Card>
@@ -97,42 +107,55 @@ function RecentExpenses({ expenses, loading }: { expenses: any[] | null, loading
   if (loading) return <Skeleton className="h-48 w-full" />;
   if (!expenses || expenses.length === 0) return (
     <div className="flex h-48 items-center justify-center rounded-md border-2 border-dashed">
-      <p className="text-muted-foreground">Nenhuma despesa registrada ainda.</p>
+      <p className="text-muted-foreground text-sm">Nenhuma despesa registrada ainda.</p>
     </div>
   );
 
   const recent = [...expenses]
-    .sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
-      return dateB.getTime() - dateA.getTime();
-    })
+    .sort((a, b) => (toDate(b.createdAt)?.getTime() || 0) - (toDate(a.createdAt)?.getTime() || 0))
     .slice(0, 5);
 
   return (
     <div className="space-y-3">
-      {recent.map(exp => (
-        <div key={exp.id} className="flex items-center justify-between rounded-lg border p-3 text-sm">
-          <div className="space-y-1">
-            <p className="font-medium">{exp.description}</p>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{exp.accountPlanName || exp.accountPlan}</span>
-              {exp.supplier && (
-                <>
-                  <span className="text-muted-foreground/50">•</span>
-                  <span className="font-medium text-primary/80">{exp.supplier}</span>
-                </>
-              )}
+      {recent.map(exp => {
+        const due = toDate(exp.dueDate);
+        const now = new Date();
+        let statusKey = exp.status;
+        if (exp.status === 'pending' && due && due < now) {
+          statusKey = 'overdue';
+        }
+        const cfg = STATUS_CONFIG[statusKey] || { label: exp.status, className: '' };
+
+        return (
+          <div key={exp.id} className="flex items-center justify-between rounded-lg border p-3 text-sm hover:bg-muted/30 transition-colors">
+            <div className="space-y-1">
+              <p className="font-medium">{exp.description}</p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{exp.accountPlanName || exp.accountPlan}</span>
+                {exp.supplier && (
+                  <>
+                    <span className="opacity-30">•</span>
+                    <span className="font-medium text-primary/80">{exp.supplier}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className={cn('rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-tight', cfg.className)}>
+                {cfg.label}
+              </span>
+              <div className="text-right min-w-[100px]">
+                <p className="font-mono font-bold text-rose-500">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(exp.totalValue)}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {due ? format(due, 'dd/MM/yyyy') : 'Sem data'}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="text-right">
-            <p className="font-semibold text-rose-500">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(exp.totalValue)}
-            </p>
-            <p className="text-xs text-muted-foreground capitalize">{exp.status === 'pending' ? 'Pendente' : 'Pago'}</p>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

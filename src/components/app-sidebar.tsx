@@ -40,7 +40,7 @@ const financialNavItems = [
   { href: '/dashboard/cash-flow', icon: ArrowLeftRight, label: 'Fluxo de caixa' },
 ];
 
-const systemNavItems = [
+const adminNavItems = [
   { href: '/dashboard/settings/accounts', icon: Building2, label: 'Contas bancárias' },
   { href: '/dashboard/settings', icon: Settings, label: 'Configurações' },
 ];
@@ -102,7 +102,7 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Administração</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {systemNavItems.map((item) => (
+              {adminNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.label} className="justify-start transition-all duration-200 hover:translate-x-1 hover:bg-sidebar-accent">
                     <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
