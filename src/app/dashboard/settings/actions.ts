@@ -1,42 +1,25 @@
-
 'use server';
 
-import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 
+/**
+ * Inicializa o app administrativo usando ADC (Application Default Credentials).
+ * Em produção (App Hosting), isso usa a identidade do servidor automaticamente.
+ * Em desenvolvimento local, exige o comando `gcloud auth application-default login`
+ * ou a variável GOOGLE_APPLICATION_CREDENTIALS apontando para um JSON.
+ */
 function getAdminApp() {
   const APP_NAME = 'admin-app';
   const apps = getApps();
   const existingApp = apps.find(a => a.name === APP_NAME);
   if (existingApp) return existingApp;
 
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  const projectId = 'coalafinan';
-
-  try {
-    // Tenta usar chaves se existirem (ambiente local com segredos)
-    if (clientEmail && privateKey) {
-      return initializeApp({
-        credential: cert({
-          projectId,
-          clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'),
-        }),
-      }, APP_NAME);
-    }
-
-    // Caso contrário, usa a Identidade Gerenciada (ADC)
-    // Funciona no App Hosting, mas falha no Preview local sem chaves
-    return initializeApp({
-      credential: applicationDefault(),
-      projectId,
-    }, APP_NAME);
-  } catch (error) {
-    console.error('Erro ao inicializar Firebase Admin:', error);
-    throw error;
-  }
+  return initializeApp({
+    credential: applicationDefault(),
+    projectId: 'coalafinan',
+  }, APP_NAME);
 }
 
 export async function createUserAction(data: {
@@ -70,11 +53,11 @@ export async function createUserAction(data: {
   } catch (error: any) {
     console.error('createUserAction error:', error);
     
-    // Erro específico para o ambiente de Preview
+    // Tratamento de erro para ambiente de desenvolvimento ou falta de permissão
     if (error.message?.includes('Could not refresh access token') || error.message?.includes('credential')) {
       return { 
         success: false, 
-        error: 'Erro de autenticação: Esta função (Criar usuário) só funciona no ambiente de produção (site publicado) ou se você tiver uma chave JSON configurada. No ambiente de Preview, o servidor não tem permissão para criar usuários no Auth.' 
+        error: 'Erro de autenticação: O servidor não possui uma identidade configurada. Em produção, verifique as permissões IAM. Em preview local, esta função não está disponível sem chaves manuais.' 
       };
     }
 
