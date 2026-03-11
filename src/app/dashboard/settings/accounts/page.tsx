@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -14,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -125,6 +124,12 @@ export default function AccountsPage() {
     }
   }
 
+  function handleDialogClose() {
+    setDialogOpen(false);
+    setEditTarget(null);
+    form.reset();
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -155,7 +160,6 @@ export default function AccountsPage() {
           {accounts.map((account: any) => (
             <Card key={account.id} className={`${!account.active ? 'opacity-60 grayscale' : ''} border-border/50 bg-card/50 shadow-sm backdrop-blur transition-all hover:bg-card/80`}>
               <CardContent className="flex flex-col sm:flex-row sm:items-start gap-4 p-5">
-                {/* Coluna esquerda — nome + agência/cc + status */}
                 <div className="min-w-[220px]">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-base truncate max-w-[120px]">{account.name}</h3>
@@ -179,10 +183,8 @@ export default function AccountsPage() {
                   </Badge>
                 </div>
 
-                {/* Divisor vertical */}
                 <div className="hidden sm:block w-px self-stretch bg-border/20" />
 
-                {/* Coluna direita — formas de pagamento em linha */}
                 <div className="flex flex-1 flex-wrap gap-2 items-center">
                   {account.paymentMethods.length === 0 ? (
                     <p className="text-xs text-muted-foreground italic">Nenhuma forma de pagamento cadastrada.</p>
@@ -209,7 +211,7 @@ export default function AccountsPage() {
         </div>
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) handleDialogClose(); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="font-headline text-2xl">
@@ -427,7 +429,7 @@ export default function AccountsPage() {
               </div>
 
               <DialogFooter className="sticky bottom-0 bg-popover pt-4">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+                <Button type="button" variant="outline" onClick={handleDialogClose}>Cancelar</Button>
                 <Button type="submit" disabled={isSaving}>
                   {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {editTarget ? 'Salvar alterações' : 'Criar conta'}

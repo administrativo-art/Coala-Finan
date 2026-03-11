@@ -66,7 +66,7 @@ export default function ProfilesManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const profilesCollection = useMemo(() => (firestore ? collection(firestore, 'accessProfiles') : null), [firestore]);
-  const { data: profiles, loading } = useCollection(profilesCollection);
+  const { data: profiles, loading } = useCollection<ProfileFormValues>(profilesCollection as any);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -82,13 +82,14 @@ export default function ProfilesManagement() {
 
   const handleDialogOpen = (profile: Profile | null = null) => {
     setEditingProfile(profile);
-    form.reset(profile || { name: '', description: '' });
+    form.reset(profile ? { name: profile.name, description: profile.description } : { name: '', description: '' });
     setIsFormOpen(true);
   };
 
   const handleDialogClose = () => {
     setIsFormOpen(false);
     setEditingProfile(null);
+    form.reset();
   };
 
   const onSubmit = async (values: ProfileFormValues) => {
@@ -168,8 +169,8 @@ export default function ProfilesManagement() {
               profiles &&
               profiles.map((profile) => (
                 <TableRow key={profile.id}>
-                  <TableCell className="font-medium">{profile.name}</TableCell>
-                  <TableCell>{profile.description}</TableCell>
+                  <TableCell className="font-medium">{(profile as any).name}</TableCell>
+                  <TableCell>{(profile as any).description}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -182,7 +183,7 @@ export default function ProfilesManagement() {
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          onClick={() => handleDialogOpen(profile)}
+                          onClick={() => handleDialogOpen(profile as Profile)}
                         >
                           Editar
                         </DropdownMenuItem>

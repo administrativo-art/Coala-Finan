@@ -69,8 +69,8 @@ export default function ResultCentersManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const resultCentersCollection = useMemo(() => (firestore ? collection(firestore, 'resultCenters') : null), [firestore]);
-  const { data: resultCenters, loading } = useCollection(
-    resultCentersCollection
+  const { data: resultCenters, loading } = useCollection<ResultCenterFormValues>(
+    resultCentersCollection as any
   );
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -88,13 +88,14 @@ export default function ResultCentersManagement() {
 
   const handleDialogOpen = (resultCenter: ResultCenter | null = null) => {
     setEditingResultCenter(resultCenter);
-    form.reset(resultCenter || { name: '', description: '' });
+    form.reset(resultCenter ? { name: resultCenter.name, description: resultCenter.description } : { name: '', description: '' });
     setIsFormOpen(true);
   };
 
   const handleDialogClose = () => {
     setIsFormOpen(false);
     setEditingResultCenter(null);
+    form.reset();
   };
 
   const onSubmit = async (values: ResultCenterFormValues) => {
@@ -174,8 +175,8 @@ export default function ResultCentersManagement() {
               resultCenters &&
               resultCenters.map((rc) => (
                 <TableRow key={rc.id}>
-                  <TableCell className="font-medium">{rc.name}</TableCell>
-                  <TableCell>{rc.description}</TableCell>
+                  <TableCell className="font-medium">{(rc as any).name}</TableCell>
+                  <TableCell>{(rc as any).description}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -188,7 +189,7 @@ export default function ResultCentersManagement() {
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          onClick={() => handleDialogOpen(rc)}
+                          onClick={() => handleDialogOpen(rc as ResultCenter)}
                         >
                           Editar
                         </DropdownMenuItem>

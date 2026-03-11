@@ -1,35 +1,22 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
-import { collection, Timestamp } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore } from '@/firebase';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, Wallet, Download } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, ArrowLeftRight, Wallet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid } from 'recharts';
 
 import type { Account } from '@/types/account';
 import type { Transaction } from '@/types/transaction';
-import { TRANSACTION_TYPE_LABELS } from '@/types/transaction';
 import { NewTransactionDialog } from '@/components/cash-flow/new-transaction-dialog';
-
-const TYPE_COLOR: Record<string, string> = {
-  revenue:           'text-emerald-400',
-  revenue_recurring: 'text-emerald-400',
-  transfer_in:       'text-sky-400',
-  redemption:        'text-sky-400',
-  expense_payment:   'text-rose-400',
-  transfer_out:      'text-amber-400',
-  adjustment:        'text-slate-400',
-};
 
 export default function CashFlowPage() {
   const firestore = useFirestore();
@@ -41,9 +28,9 @@ export default function CashFlowPage() {
   const transactionsRef = useMemo(() => firestore ? collection(firestore, 'transactions') : null, [firestore]);
   const paymentsRef = useMemo(() => firestore ? collection(firestore, 'payments') : null, [firestore]);
 
-  const { data: accountsData } = useCollection<Account>(accountsRef);
-  const { data: transactionsData, loading: loadingTx } = useCollection<Transaction>(transactionsRef);
-  const { data: paymentsData, loading: loadingPay } = useCollection<any>(paymentsRef);
+  const { data: accountsData } = useCollection<Account>(accountsRef as any);
+  const { data: transactionsData, loading: loadingTx } = useCollection<Transaction>(transactionsRef as any);
+  const { data: paymentsData, loading: loadingPay } = useCollection<any>(paymentsRef as any);
 
   const accounts = accountsData || [];
   const transactions = transactionsData || [];

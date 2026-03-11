@@ -1,4 +1,3 @@
-
 'use server';
 
 import { generateExpenseInsights, ExpenseInsightsInput } from '@/ai/flows/expense-insights';
@@ -23,7 +22,7 @@ export async function getExpenseInsightsAction(
         : [{ name: formData.resultCenter!, percentage: 100 }],
       totalValue: formData.totalValue,
       competenceDate: formData.competenceDate.toISOString(),
-      dueDate: formData.dueDate.toISOString(),
+      dueDate: formData.dueDate?.toISOString() ?? formData.competenceDate.toISOString(),
       installmentSummary: formData.paymentMethod === 'installments' 
         ? `${formData.installments || 0} parcelas` 
         : 'Pagamento único',

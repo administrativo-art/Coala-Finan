@@ -73,7 +73,7 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
   const [isSaving, setIsSaving] = useState(false);
 
   const accountsRef = useMemo(() => (firestore ? collection(firestore, 'bankAccounts') : null), [firestore]);
-  const { data: accountsData } = useCollection<Account>(accountsRef);
+  const { data: accountsData } = useCollection<Account>(accountsRef as any);
   const accounts = accountsData || [];
   const activeAccounts = accounts.filter(a => a.active);
 
@@ -234,25 +234,68 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 <AccountSelector form={revenueForm} accounts={activeAccounts} />
                 <div className="grid grid-cols-2 gap-3">
                   <FormField control={revenueForm.control} name="amount" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Valor (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="h-9 text-xs" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Valor (R$)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" className="h-9 text-xs" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <DateField form={revenueForm} name="date" />
                 </div>
                 <FormField control={revenueForm.control} name="description" render={({ field }) => (
-                  <FormItem><FormLabel className="text-xs">Descrição</FormLabel><FormControl><Input className="h-9 text-xs" placeholder="Ex: Recebimento cliente X" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem>
+                    <FormLabel className="text-xs">Descrição</FormLabel>
+                    <FormControl>
+                      <Input className="h-9 text-xs" placeholder="Ex: Recebimento cliente X" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-3">
                   <FormField control={revenueForm.control} name="revenueCategory" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Categoria</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{Object.entries(REVENUE_CATEGORY_LABELS).map(([k, v]) => <SelectItem key={k} value={k} className="text-xs">{v}</SelectItem>)}</Select><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Categoria</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-xs">
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(REVENUE_CATEGORY_LABELS).map(([k, v]) => (
+                            <SelectItem key={k} value={k} className="text-xs">{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={revenueForm.control} name="revenueSource" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Origem (opcional)</FormLabel><FormControl><Input className="h-9 text-xs" {...field} /></FormControl></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Origem (opcional)</FormLabel>
+                      <FormControl>
+                        <Input className="h-9 text-xs" {...field} />
+                      </FormControl>
+                    </FormItem>
                   )} />
                 </div>
                 <FormField control={revenueForm.control} name="isRecurring" render={({ field }) => (
-                  <FormItem className="flex items-center gap-3"><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="!mt-0 text-xs">Receita recorrente</FormLabel></FormItem>
+                  <FormItem className="flex items-center gap-3">
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="!mt-0 text-xs">Receita recorrente</FormLabel>
+                  </FormItem>
                 )} />
-                <DialogFooter><Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button><Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Registrar receita</Button></DialogFooter>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} 
+                    Registrar receita
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
           </TabsContent>
@@ -270,14 +313,32 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <FormField control={transferForm.control} name="amount" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Valor (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="h-9 text-xs" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Valor (R$)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" className="h-9 text-xs" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <DateField form={transferForm} name="date" />
                 </div>
                 <FormField control={transferForm.control} name="description" render={({ field }) => (
-                  <FormItem><FormLabel className="text-xs">Descrição</FormLabel><FormControl><Input className="h-9 text-xs" placeholder="Ex: Transferência entre contas" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem>
+                    <FormLabel className="text-xs">Descrição</FormLabel>
+                    <FormControl>
+                      <Input className="h-9 text-xs" placeholder="Ex: Transferência entre contas" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
-                <DialogFooter><Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button><Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Registrar transferência</Button></DialogFooter>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} 
+                    Registrar transferência
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
           </TabsContent>
@@ -288,17 +349,48 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 <AccountSelector form={adjustmentForm} accounts={activeAccounts} />
                 <div className="grid grid-cols-3 gap-3">
                   <FormField control={adjustmentForm.control} name="direction" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Tipo</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="in" className="text-xs">Entrada (+)</SelectItem><SelectItem value="out" className="text-xs">{'Saída (-)'}</SelectItem></Select></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Tipo</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-9 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="in" className="text-xs">Entrada (+)</SelectItem>
+                          <SelectItem value="out" className="text-xs">{'Saída (-)'}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
                   )} />
                   <FormField control={adjustmentForm.control} name="amount" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Valor (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="h-9 text-xs" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel className="text-xs">Valor (R$)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" className="h-9 text-xs" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <DateField form={adjustmentForm} name="date" />
                 </div>
                 <FormField control={adjustmentForm.control} name="reason" render={({ field }) => (
-                  <FormItem><FormLabel className="text-xs">Motivo do ajuste</FormLabel><FormControl><Textarea className="text-xs" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem>
+                    <FormLabel className="text-xs">Motivo do ajuste</FormLabel>
+                    <FormControl>
+                      <Textarea className="text-xs" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )} />
-                <DialogFooter><Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button><Button type="submit" disabled={isSaving}>{isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Registrar ajuste</Button></DialogFooter>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} 
+                    Registrar ajuste
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
           </TabsContent>
@@ -314,10 +406,40 @@ function AccountSelector({ form, accounts, accName = 'accountId', methName = 'pa
   return (
     <div className="grid grid-cols-2 gap-3">
       <FormField control={form.control} name={accName} render={({ field }) => (
-        <FormItem><FormLabel className="text-xs">Conta</FormLabel><Select onValueChange={val => { field.onChange(val); form.setValue(methName, ''); }} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{accounts.map(a => <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>)}</Select><FormMessage /></FormItem>
+        <FormItem>
+          <FormLabel className="text-xs">Conta</FormLabel>
+          <Select onValueChange={val => { field.onChange(val); form.setValue(methName, ''); }} value={field.value}>
+            <FormControl>
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {accounts.map(a => (
+                <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
       )} />
       <FormField control={form.control} name={methName} render={({ field }) => (
-        <FormItem><FormLabel className="text-xs">Instrumento</FormLabel><Select onValueChange={field.onChange} value={field.value} disabled={!accountId}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{account?.paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id} className="text-xs">{pm.label}</SelectItem>)}</Select><FormMessage /></FormItem>
+        <FormItem>
+          <FormLabel className="text-xs">Instrumento</FormLabel>
+          <Select onValueChange={field.onChange} value={field.value} disabled={!accountId}>
+            <FormControl>
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {account?.paymentMethods.map(pm => (
+                <SelectItem key={pm.id} value={pm.id} className="text-xs">{pm.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
       )} />
     </div>
   );
@@ -326,6 +448,23 @@ function AccountSelector({ form, accounts, accName = 'accountId', methName = 'pa
 function DateField({ form, name }: { form: any; name: string }) {
   return (
     <FormField control={form.control} name={name} render={({ field }) => (
-      <FormItem className="flex flex-col"><FormLabel className="text-xs">Data</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className={cn('h-9 pl-3 text-left text-xs font-normal', !field.value && 'text-muted-foreground')}>{field.value ? format(field.value, "dd/MM/yyyy") : 'Selecione'}<CalendarIcon className="ml-auto h-3.5 w-3.5 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent></Popover><FormMessage /></FormItem>
+      <FormItem className="flex flex-col">
+        <FormLabel className="text-xs">Data</FormLabel>
+        <Popover>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button variant="outline" className={cn('h-9 pl-3 text-left text-xs font-normal', !field.value && 'text-muted-foreground')}>
+                {field.value ? format(field.value, "dd/MM/yyyy") : 'Selecione'}
+                <CalendarIcon className="ml-auto h-3.5 w-3.5 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
     )} />
+  );
 }
