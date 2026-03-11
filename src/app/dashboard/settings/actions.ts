@@ -7,8 +7,6 @@ import { getFirestore } from 'firebase-admin/firestore';
 /**
  * Inicializa o app administrativo usando ADC (Application Default Credentials).
  * Em produção (App Hosting), isso usa a identidade do servidor automaticamente.
- * Em desenvolvimento local, exige o comando `gcloud auth application-default login`
- * ou a variável GOOGLE_APPLICATION_CREDENTIALS apontando para um JSON.
  */
 function getAdminApp() {
   const APP_NAME = 'admin-app';
@@ -19,6 +17,7 @@ function getAdminApp() {
   return initializeApp({
     credential: applicationDefault(),
     projectId: 'coalafinan',
+    serviceAccountId: 'firebase-adminsdk-fbsvc@coalafinan.iam.gserviceaccount.com',
   }, APP_NAME);
 }
 
