@@ -50,7 +50,7 @@ export async function createUserAction(data: {
     const uid = json.localId;
 
     const app = getAdminApp();
-    const adminDb = getFirestore(app);
+    const adminDb = getFirestore(app, 'coalafinan');
     await adminDb.collection('users').doc(uid).set({
       name: data.name,
       email: data.email,

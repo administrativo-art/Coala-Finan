@@ -40,11 +40,11 @@ export function initializeFirebase(): FirebaseInstances {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
-    });
+    }, 'coalafinan');
   } catch (e) {
     // Caso já tenha sido inicializado (comum no Hot Reload do Next.js)
     // usamos getFirestore para recuperar a instância existente
-    firestore = getFirestore(app);
+    firestore = getFirestore(app, 'coalafinan');
   }
 
   firebaseInstances = { app, auth, firestore };
