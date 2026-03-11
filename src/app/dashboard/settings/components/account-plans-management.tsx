@@ -239,7 +239,7 @@ export default function AccountPlansManagement() {
         </Table>
       </CardContent>
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleDialogClose(); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

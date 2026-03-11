@@ -55,7 +55,7 @@ export function useDoc<T = DocumentData>(
 
           if (isNetworkError) {
             setOffline(true);
-            if (data) setLoading(false);
+            setLoading(false);
 
             if (retryCount.current < 5) {
               const delay = Math.min(1000 * Math.pow(2, retryCount.current), 16000);

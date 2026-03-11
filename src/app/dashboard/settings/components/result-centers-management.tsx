@@ -211,7 +211,7 @@ export default function ResultCentersManagement() {
         </Table>
       </CardContent>
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleDialogClose(); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

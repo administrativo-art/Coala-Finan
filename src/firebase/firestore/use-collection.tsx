@@ -53,8 +53,7 @@ export function useCollection<T = DocumentData>(
 
           if (isNetworkError) {
             setOffline(true);
-            // Se já temos dados em cache, paramos o loading
-            if (data) setLoading(false);
+            setLoading(false);
             
             if (retryCount.current < 5) {
               const delay = Math.min(1000 * Math.pow(2, retryCount.current), 16000);

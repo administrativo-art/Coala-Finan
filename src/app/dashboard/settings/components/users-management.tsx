@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -261,7 +260,7 @@ export default function UsersManagement() {
         </Table>
       </CardContent>
 
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      <Dialog open={isFormOpen} onOpenChange={(open) => { if (!open) handleDialogClose(); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{editingUser ? 'Editar' : 'Adicionar'} usuário</DialogTitle>
