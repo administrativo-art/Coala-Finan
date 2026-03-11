@@ -84,7 +84,7 @@ const flattenTree = (nodes: AccountPlan[], level = 0): AccountPlan[] =>
     ...flattenTree(node.children || [], level + 1),
   ]);
 
-export default function AccountPlansManagement() {
+export default function CostCentersManagement() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const accountPlansCollection = useMemo(() => (firestore ? collection(firestore, 'accountPlans') : null), [firestore]);
@@ -109,7 +109,7 @@ export default function AccountPlansManagement() {
 
   const flattenedAccounts = useMemo(() => {
     if (!rawAccountPlans) return [];
-    const tree = buildTree(rawAccountPlans as AccountPlan[]);
+    const tree = buildTree(rawAccountPlans as AccountPlan[], null);
     return flattenTree(tree);
   }, [rawAccountPlans]);
 
@@ -130,10 +130,10 @@ export default function AccountPlansManagement() {
     try {
       if (editingAccountPlan) {
         await setDoc(doc(firestore, 'accountPlans', editingAccountPlan.id), values);
-        toast({ title: 'Conta atualizada com sucesso!' });
+        toast({ title: 'Centro de custo atualizado com sucesso!' });
       } else {
         await addDoc(accountPlansCollection, values);
-        toast({ title: 'Conta adicionada com sucesso!' });
+        toast({ title: 'Centro de custo adicionado com sucesso!' });
       }
       handleDialogClose();
     } catch (error) {
@@ -141,7 +141,7 @@ export default function AccountPlansManagement() {
       toast({
         variant: 'destructive',
         title: 'Erro ao salvar',
-        description: 'Não foi possível salvar a conta.',
+        description: 'Não foi possível salvar o centro de custo.',
       });
     } finally {
       setIsSaving(false);
@@ -152,12 +152,12 @@ export default function AccountPlansManagement() {
     if (!firestore || !deletingId) return;
     try {
       await deleteDoc(doc(firestore, 'accountPlans', deletingId));
-      toast({ title: 'Conta excluída com sucesso!' });
+      toast({ title: 'Centro de custo excluído com sucesso!' });
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Erro ao excluir',
-        description: 'Não foi possível excluir a conta.',
+        description: 'Não foi possível excluir o centro de custo.',
       });
     } finally {
       setIsAlertOpen(false);
@@ -168,16 +168,16 @@ export default function AccountPlansManagement() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Plano de Contas</CardTitle>
+        <CardTitle>Centros de Custo</CardTitle>
         <CardDescription>
-          Gerencie a estrutura hierárquica do seu plano de contas.
+          Gerencie a estrutura hierárquica dos seus centros de custo para classificação de despesas.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex items-center justify-end">
           <Button onClick={() => handleDialogOpen()}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Adicionar Conta
+            Adicionar Centro
           </Button>
         </div>
         <Table>
@@ -244,10 +244,10 @@ export default function AccountPlansManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingAccountPlan ? 'Editar' : 'Adicionar'} Conta
+              {editingAccountPlan ? 'Editar' : 'Adicionar'} Centro de Custo
             </DialogTitle>
             <DialogDescription>
-              Preencha os detalhes da conta do plano de contas.
+              Preencha os detalhes do centro de custo.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -283,15 +283,15 @@ export default function AccountPlansManagement() {
                 name="parentId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Conta Pai (Opcional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ''} >
+                    <FormLabel>Centro Pai (Opcional)</FormLabel>
+                    <Select onValueChange={(value) => field.onChange(value === 'null' ? null : value)} value={field.value ?? 'null'} >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione uma conta pai (se houver)" />
+                          <SelectValue placeholder="Selecione um pai (se houver)" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Nenhuma (Conta Raiz)</SelectItem>
+                        <SelectItem value="null">Nenhuma (Raiz)</SelectItem>
                         {flattenedAccounts.map((account) => (
                            <SelectItem key={account.id} value={account.id} disabled={editingAccountPlan?.id === account.id}>
                            <span style={{ paddingLeft: `${(account.level || 0) * 1}rem` }}>{account.name}</span>
@@ -326,7 +326,7 @@ export default function AccountPlansManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente a conta. Se houver contas filhas, elas ficarão órfãs.
+              Esta ação não pode ser desfeita. Isso excluirá permanentemente o centro de custo.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
