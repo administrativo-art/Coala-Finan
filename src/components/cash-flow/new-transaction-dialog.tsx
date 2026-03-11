@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -65,14 +64,6 @@ const adjustmentSchema = baseSchema.extend({
 type RevenueValues    = z.infer<typeof revenueSchema>;
 type TransferValues   = z.infer<typeof transferSchema>;
 type AdjustmentValues = z.infer<typeof adjustmentSchema>;
-
-const PAYMENT_TYPE_LABELS: Record<string, string> = {
-  debit_card: 'Cartão de débito',
-  credit_card: 'Cartão de crédito',
-  pix: 'PIX',
-  transfer: 'Transferência',
-  cash: 'Dinheiro',
-};
 
 export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: boolean; onOpenChange: (open: boolean) => void; onSuccess?: () => void }) {
   const firestore = useFirestore();
@@ -252,7 +243,7 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 )} />
                 <div className="grid grid-cols-2 gap-3">
                   <FormField control={revenueForm.control} name="revenueCategory" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Categoria</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{Object.entries(REVENUE_CATEGORY_LABELS).map(([k, v]) => <SelectItem key={k} value={k} className="text-xs">{v}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                    <FormItem><FormLabel className="text-xs">Categoria</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{Object.entries(REVENUE_CATEGORY_LABELS).map(([k, v]) => <SelectItem key={k} value={k} className="text-xs">{v}</SelectItem>)}</Select><FormMessage /></FormItem>
                   )} />
                   <FormField control={revenueForm.control} name="revenueSource" render={({ field }) => (
                     <FormItem><FormLabel className="text-xs">Origem (opcional)</FormLabel><FormControl><Input className="h-9 text-xs" {...field} /></FormControl></FormItem>
@@ -297,7 +288,7 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 <AccountSelector form={adjustmentForm} accounts={activeAccounts} />
                 <div className="grid grid-cols-3 gap-3">
                   <FormField control={adjustmentForm.control} name="direction" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Tipo</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="in" className="text-xs">Entrada (+)</SelectItem><SelectItem value="out" className="text-xs">Saída (-)</SelectItem></Select></FormItem>
+                    <FormItem><FormLabel className="text-xs">Tipo</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="in" className="text-xs">Entrada (+)</SelectItem><SelectItem value="out" className="text-xs">{'Saída (-)'}</SelectItem></Select></FormItem>
                   )} />
                   <FormField control={adjustmentForm.control} name="amount" render={({ field }) => (
                     <FormItem><FormLabel className="text-xs">Valor (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="h-9 text-xs" {...field} /></FormControl><FormMessage /></FormItem>
@@ -337,5 +328,4 @@ function DateField({ form, name }: { form: any; name: string }) {
     <FormField control={form.control} name={name} render={({ field }) => (
       <FormItem className="flex flex-col"><FormLabel className="text-xs">Data</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className={cn('h-9 pl-3 text-left text-xs font-normal', !field.value && 'text-muted-foreground')}>{field.value ? format(field.value, "dd/MM/yyyy") : 'Selecione'}<CalendarIcon className="ml-auto h-3.5 w-3.5 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus locale={ptBR} /></PopoverContent></Popover><FormMessage /></FormItem>
     )} />
-  );
 }

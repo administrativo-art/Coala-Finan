@@ -41,10 +41,9 @@ export function useCollection<T = DocumentData>(
           setLoading(false);
           setError(null);
           setOffline(snapshot.metadata.fromCache);
-          retryCount.current = 0; // Reset retry count on success
+          retryCount.current = 0;
         },
         async (serverError) => {
-          // Trata erros de conexão/offline de forma silenciosa
           const isNetworkError = 
             serverError.code === 'unavailable' || 
             serverError.code === 'unknown' ||
@@ -63,11 +62,8 @@ export function useCollection<T = DocumentData>(
               }, delay);
               return;
             }
-            setLoading(false);
-            return;
           }
 
-          // Apenas erros de permissão devem ser emitidos para o listener global
           if (serverError.code === 'permission-denied') {
             let path = 'unknown collection path';
             if (q && 'path' in q && typeof q.path === 'string') {
@@ -84,7 +80,7 @@ export function useCollection<T = DocumentData>(
           }
           
           setLoading(false);
-          setData(null);
+          // Não limpamos os dados em caso de erro para manter o cache visível se possível
         }
       );
 

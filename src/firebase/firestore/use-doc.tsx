@@ -43,10 +43,9 @@ export function useDoc<T = DocumentData>(
           setLoading(false);
           setError(null);
           setOffline(snapshot.metadata.fromCache);
-          retryCount.current = 0; // Reset retry count on success
+          retryCount.current = 0;
         },
         async (serverError) => {
-          // Trata erros de conexão/offline de forma silenciosa
           const isNetworkError = 
             serverError.code === 'unavailable' || 
             serverError.code === 'unknown' ||
@@ -65,11 +64,8 @@ export function useDoc<T = DocumentData>(
               }, delay);
               return;
             }
-            setLoading(false);
-            return;
           }
 
-          // Apenas erros de permissão devem ser emitidos
           if (serverError.code === 'permission-denied') {
             const permissionError = new FirestorePermissionError({
               path: docRef!.path,
@@ -81,7 +77,6 @@ export function useDoc<T = DocumentData>(
           }
 
           setLoading(false);
-          setData(null);
         }
       );
 
