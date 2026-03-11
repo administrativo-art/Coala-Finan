@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { useForm } from 'react-hook-form';
@@ -81,7 +81,7 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
   const [tab,      setTab]      = useState<'revenue' | 'transfer' | 'adjustment'>('revenue');
   const [isSaving, setIsSaving] = useState(false);
 
-  const accountsRef = firestore ? collection(firestore, 'bankAccounts') : null;
+  const accountsRef = useMemo(() => (firestore ? collection(firestore, 'bankAccounts') : null), [firestore]);
   const { data: accountsData } = useCollection<Account>(accountsRef);
   const accounts = accountsData || [];
   const activeAccounts = accounts.filter(a => a.active);
@@ -297,7 +297,7 @@ export function NewTransactionDialog({ open, onOpenChange, onSuccess }: { open: 
                 <AccountSelector form={adjustmentForm} accounts={activeAccounts} />
                 <div className="grid grid-cols-3 gap-3">
                   <FormField control={adjustmentForm.control} name="direction" render={({ field }) => (
-                    <FormItem><FormLabel className="text-xs">Tipo</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="in" className="text-xs">Entrada (+)</SelectItem><SelectItem value="out" className="text-xs">Saída (-)</SelectItem></SelectContent></Select></FormItem>
+                    <FormItem><FormLabel className="text-xs">Tipo</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="in" className="text-xs">Entrada (+)</SelectItem><SelectItem value="out" className="text-xs">Saída (-)</SelectItem></Select></FormItem>
                   )} />
                   <FormField control={adjustmentForm.control} name="amount" render={({ field }) => (
                     <FormItem><FormLabel className="text-xs">Valor (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="h-9 text-xs" {...field} /></FormControl><FormMessage /></FormItem>
@@ -323,10 +323,10 @@ function AccountSelector({ form, accounts, accName = 'accountId', methName = 'pa
   return (
     <div className="grid grid-cols-2 gap-3">
       <FormField control={form.control} name={accName} render={({ field }) => (
-        <FormItem><FormLabel className="text-xs">Conta</FormLabel><Select onValueChange={val => { field.onChange(val); form.setValue(methName, ''); }} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{accounts.map(a => <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        <FormItem><FormLabel className="text-xs">Conta</FormLabel><Select onValueChange={val => { field.onChange(val); form.setValue(methName, ''); }} value={field.value}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{accounts.map(a => <SelectItem key={a.id} value={a.id} className="text-xs">{a.name}</SelectItem>)}</Select><FormMessage /></FormItem>
       )} />
       <FormField control={form.control} name={methName} render={({ field }) => (
-        <FormItem><FormLabel className="text-xs">Instrumento</FormLabel><Select onValueChange={field.onChange} value={field.value} disabled={!accountId}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{account?.paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id} className="text-xs">{pm.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        <FormItem><FormLabel className="text-xs">Instrumento</FormLabel><Select onValueChange={field.onChange} value={field.value} disabled={!accountId}><FormControl><SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Selecione" /></SelectTrigger></FormControl><SelectContent>{account?.paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id} className="text-xs">{pm.label}</SelectItem>)}</Select><FormMessage /></FormItem>
       )} />
     </div>
   );

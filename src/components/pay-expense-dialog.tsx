@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { collection, doc, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { useCollection, useFirestore, useUser } from '@/firebase';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -54,7 +55,7 @@ export function PayExpenseDialog({ expense, open, onOpenChange, onSuccess }: Pro
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
-  const accountsRef = firestore ? collection(firestore, 'bankAccounts') : null;
+  const accountsRef = useMemo(() => (firestore ? collection(firestore, 'bankAccounts') : null), [firestore]);
   const { data: accountsData } = useCollection<any>(accountsRef);
   const accounts = accountsData || [];
   const activeAccounts = accounts.filter(a => a.active);
